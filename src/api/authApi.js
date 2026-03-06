@@ -3,13 +3,22 @@
  */
 
 import { api } from './client.js'
+import { setToken, clearToken } from './tokenStorage.js'
 
 export async function login({ email, password }) {
-  return api.post('/auth/login', { email, password })
+  const res = await api.post('/auth/login', { email, password })
+  if (res.access_token ?? res.token) {
+    setToken({ access_token: res.access_token ?? res.token, token_type: res.token_type ?? 'bearer' })
+  }
+  return res
 }
 
 export async function register({ email, password, name }) {
-  return api.post('/auth/register', { email, password, name })
+  const res = await api.post('/auth/register', { email, password, name })
+  if (res.access_token ?? res.token) {
+    setToken({ access_token: res.access_token ?? res.token, token_type: res.token_type ?? 'bearer' })
+  }
+  return res
 }
 
 export async function getMe() {
@@ -17,7 +26,5 @@ export async function getMe() {
 }
 
 export function logout() {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.removeItem('token')
-  }
+  clearToken()
 }

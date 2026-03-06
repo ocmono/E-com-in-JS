@@ -22,7 +22,7 @@ This folder contains dummy entries for all admin sections. Use them as a referen
 | **warehouses** | id, name, code, address, is_default | |
 | **shipping** | id, name, rate_type, amount, min_order_for_free | |
 | **b2b** | id, company_name, tax_id, credit_limit, user_id | B2B customers |
-| **users** | id, email, name, role | admin, manager, shop_owner, customer |
+| **users** | id, email, name, role | super_admin, admin, manager, customer |
 | **tax_rules** | id, name, rate, country, state, enabled | |
 | **payment_methods** | id, name, code, enabled, is_default | |
 

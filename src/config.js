@@ -5,7 +5,7 @@
 
 export const config = {
   api: {
-    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+    baseUrl: 'https://bkecom.ocmono.in',
     timeout: 30000,
   },
   app: {

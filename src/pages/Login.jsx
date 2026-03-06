@@ -72,7 +72,7 @@ export function Login() {
         </button>
       </form>
 
-      <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+      {/* <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm">
         <p className="text-amber-800 mb-2">No backend? Use demo admin to see admin bar:</p>
         <button
           type="button"
@@ -81,7 +81,7 @@ export function Login() {
         >
           Login as Demo Admin
         </button>
-      </div>
+      </div> */}
 
       <p className="mt-6 text-center text-neutral-600 text-sm">
         Don&apos;t have an account?{' '}

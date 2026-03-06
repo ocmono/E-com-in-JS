@@ -1,5 +1,5 @@
 /**
- * Admin bar - only visible for staff (admin, manager, shop_owner).
+ * Admin bar - only visible for staff (super_admin, admin, manager).
  * Hidden for customers (Drupal-style).
  */
 

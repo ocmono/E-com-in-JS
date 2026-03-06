@@ -3,12 +3,9 @@
  */
 
 import { config } from '../config.js'
+import { getToken } from './tokenStorage.js'
 
 const BASE_URL = config.api.baseUrl
-
-function getToken() {
-  return typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null
-}
 
 async function request(path, options = {}) {
   const url = `${BASE_URL}${path}`

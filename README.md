@@ -17,6 +17,12 @@ If you are developing a production application, we recommend using TypeScript wi
 
 
 
+<!-- git  -->
+…or push an existing repository from the command line
+git remote add origin https://github.com/ocmono/E-com-in-JS.git
+git branch -M main
+git push -u origin main
+
 
 
 

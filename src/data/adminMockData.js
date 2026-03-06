@@ -92,7 +92,7 @@ export const b2b = [
 export const users = [
   { id: 'u1', email: 'admin@example.com', name: 'Admin User', role: 'admin', createdAt: '2024-01-01' },
   { id: 'u2', email: 'manager@example.com', name: 'Store Manager', role: 'manager', createdAt: '2024-06-15' },
-  { id: 'u3', email: 'shop@example.com', name: 'Shop Owner', role: 'shop_owner', createdAt: '2025-01-10' },
+  { id: 'u3', email: 'super@example.com', name: 'Super Admin', role: 'super_admin', createdAt: '2025-01-10' },
 ]
 
 export const taxRules = [
