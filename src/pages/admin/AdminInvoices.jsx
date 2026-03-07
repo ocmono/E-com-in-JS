@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AdminBreadcrumbs } from '../../components/admin/AdminBreadcrumbs.jsx'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader.jsx'
 
 const ORDER_STATUSES = ['Placed', 'Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Completed', 'Cancelled']
 
@@ -22,25 +22,19 @@ export function AdminInvoices() {
 
   return (
     <div>
-      <AdminBreadcrumbs items={[{ label: 'Orders', to: '/admin/orders' }, { label: 'Invoices' }]} />
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Invoices</h1>
-          <p className="text-neutral-500 mt-1">
-            Generate invoice PDFs by date range or by order status. Configure invoice options below.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50">
-            Simplify accounting
-          </button>
-          <button type="button" className="p-2 border border-admin rounded-md hover:bg-neutral-50">
-            <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Invoices"
+        description="Generate invoice PDFs by date range or by order status. Configure invoice options below."
+      >
+        <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50">
+          Simplify accounting
+        </button>
+        <button type="button" className="p-2 border border-admin rounded-md hover:bg-neutral-50">
+          <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+      </AdminPageHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">

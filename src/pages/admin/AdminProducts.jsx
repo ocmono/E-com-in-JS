@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AdminBreadcrumbs } from '../../components/admin/AdminBreadcrumbs.jsx'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader.jsx'
 import { useAdminProductStore } from '../../stores/adminProductStore.js'
 
 const SearchIcon = () => (
@@ -40,26 +40,16 @@ export function AdminProducts() {
 
   return (
     <div>
-      <AdminBreadcrumbs
-        items={[
-          { label: 'Catalog', to: '/admin/products' },
-          { label: 'Products' },
-        ]}
-      />
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Products</h1>
-          <p className="text-neutral-500 mt-1">
-            Manage product catalog. Filter by category, search by name or reference import and export.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link
-            to="/admin/products/new"
-            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 flex items-center gap-2"
-          >
-            <span>+</span> Add new product
-          </Link>
+      <AdminPageHeader
+        title="Products"
+        description="Manage product catalog. Filter by category, search by name or reference import and export."
+      >
+        <Link
+          to="/admin/products/new"
+          className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 flex items-center gap-2"
+        >
+          <span>+</span> Add new product
+        </Link>
           <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
             Optimize product catalog
           </button>
@@ -78,12 +68,11 @@ export function AdminProducts() {
           >
             Batch create
           </Link>
-        </div>
-      </div>
+      </AdminPageHeader>
 
       <div className="bg-admin-bg border border-admin rounded-lg shadow p-4 mb-6">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1 min-w-[250px]">
             <label className="block text-xs font-medium text-neutral-500 mb-1">Search</label>
             <input
               type="text"

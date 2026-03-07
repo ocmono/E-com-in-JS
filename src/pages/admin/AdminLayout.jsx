@@ -3,8 +3,81 @@
  */
 
 import { useState } from 'react'
-import { Link, NavLink, Outlet, Navigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore, isStaff } from '../../stores/authStore.js'
+import { AdminBreadcrumbs } from '../../components/admin/AdminBreadcrumbs.jsx'
+
+/** Derive breadcrumb items from current admin pathname. */
+function getBreadcrumbs(pathname) {
+  const base = '/admin'
+  if (pathname === base || pathname === base + '/') {
+    return [{ label: 'Dashboard' }]
+  }
+  const rest = pathname.slice(base.length).replace(/^\//, '')
+  const segments = rest.split('/').filter(Boolean)
+
+  // Catalog section
+  if (rest.startsWith('products') || rest.startsWith('product-variations') || rest.startsWith('categories') ||
+      rest.startsWith('attributes') || rest.startsWith('vendors') || rest.startsWith('product-types') ||
+      rest.startsWith('product-workflow') || rest.startsWith('monitoring')) {
+    const catalogParent = { label: 'Catalog', to: '/admin/products' }
+    if (rest === 'products') return [catalogParent, { label: 'Products' }]
+    if (rest === 'products/new') return [catalogParent, { label: 'Products', to: '/admin/products' }, { label: 'Add product' }]
+    if (rest === 'products/batch') return [catalogParent, { label: 'Products', to: '/admin/products' }, { label: 'Batch create' }]
+    if (/^products\/[^/]+$/.test(rest)) return [catalogParent, { label: 'Products', to: '/admin/products' }, { label: 'Edit' }]
+    if (rest === 'product-variations') return [catalogParent, { label: 'Product variations' }]
+    if (rest === 'categories') return [catalogParent, { label: 'Categories' }]
+    if (rest === 'categories/new') return [catalogParent, { label: 'Categories', to: '/admin/categories' }, { label: 'Add category' }]
+    if (/^categories\/[^/]+$/.test(rest)) return [catalogParent, { label: 'Categories', to: '/admin/categories' }, { label: 'Edit' }]
+    if (rest === 'attributes') return [catalogParent, { label: 'Attributes & Features' }]
+    if (rest === 'vendors') return [catalogParent, { label: 'Brands & Suppliers' }]
+    if (rest === 'product-types') return [catalogParent, { label: 'Product types' }]
+    if (rest === 'product-workflow') return [catalogParent, { label: 'Product workflow' }]
+    if (rest === 'monitoring') return [catalogParent, { label: 'Monitoring' }]
+  }
+
+  // Orders section
+  if (rest.startsWith('orders')) {
+    const ordersParent = { label: 'Orders', to: '/admin/orders' }
+    if (rest === 'orders') return [{ label: 'Dashboard', to: '/admin' }, { label: 'Orders' }]
+    if (rest === 'orders/invoices') return [ordersParent, { label: 'Invoices' }]
+    if (rest === 'orders/credit-slips') return [ordersParent, { label: 'Credit Slips' }]
+    if (rest === 'orders/delivery-slips') return [ordersParent, { label: 'Delivery Slips' }]
+    if (rest === 'orders/shopping-carts') return [ordersParent, { label: 'Shopping Carts' }]
+  }
+
+  // Fulfillment section
+  const fulfillmentParent = { label: 'Fulfillment', to: '/admin/customers' }
+  if (rest === 'customers') return [fulfillmentParent, { label: 'Customers' }]
+  if (rest === 'inventory') return [fulfillmentParent, { label: 'Inventory & Stock' }]
+  if (rest === 'warehouses') return [fulfillmentParent, { label: 'Warehouses' }]
+  if (rest === 'shipping') return [fulfillmentParent, { label: 'Shipping' }]
+  if (rest === 'b2b') return [fulfillmentParent, { label: 'B2B' }]
+
+  // Settings section
+  const settingsParent = { label: 'Settings', to: '/admin/users' }
+  if (rest === 'users') return [settingsParent, { label: 'Users & roles' }]
+  if (rest === 'tax') return [settingsParent, { label: 'Tax' }]
+  if (rest === 'payment') return [settingsParent, { label: 'Payment methods' }]
+
+  // Placeholder / misc
+  if (rest === 'coupons') return [{ label: 'Dashboard', to: '/admin' }, { label: 'Coupons' }]
+  if (rest === 'stores') return [{ label: 'Dashboard', to: '/admin' }, { label: 'Stores' }]
+  if (rest === 'checkout-flow') return [settingsParent, { label: 'Checkout flow' }]
+  if (rest === 'pages') return [{ label: 'Content', to: '/admin/pages' }, { label: 'Pages' }]
+  if (rest === 'blog') return [{ label: 'Content', to: '/admin/blog' }, { label: 'Blog' }]
+
+  // Fallback: use segment labels
+  const labels = { products: 'Products', categories: 'Categories', orders: 'Orders' }
+  const items = [{ label: 'Dashboard', to: '/admin' }]
+  let to = base
+  for (let i = 0; i < segments.length; i++) {
+    to += '/' + segments[i]
+    const label = labels[segments[i]] || segments[i].replace(/-/g, ' ')
+    items.push(i === segments.length - 1 ? { label } : { label, to })
+  }
+  return items
+}
 
 const CATALOG_ITEMS = [
   { to: '/admin/products', label: 'Products' },
@@ -86,6 +159,8 @@ function NavSection({ title, items, defaultOpen = true }) {
 
 export function AdminLayout() {
   const { user } = useAuthStore()
+  const location = useLocation()
+  const breadcrumbs = getBreadcrumbs(location.pathname)
 
   if (!user) {
     return <Navigate to="/login" replace />
@@ -131,6 +206,7 @@ export function AdminLayout() {
         </div>
       </aside>
       <main className="flex-1 ml-64 p-8">
+        <AdminBreadcrumbs items={breadcrumbs} />
         <Outlet />
       </main>
     </div>

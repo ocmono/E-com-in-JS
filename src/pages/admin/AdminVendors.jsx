@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AdminBreadcrumbs } from '../../components/admin/AdminBreadcrumbs.jsx'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader.jsx'
 import { vendors } from '../../data/adminMockData.js'
 
 const SECTIONS = ['Vendors', 'Product approval', 'Commission rules']
@@ -17,11 +17,17 @@ export function AdminVendors() {
   return (
     <div className="flex gap-8">
       <div className="flex-1 min-w-0">
-        <AdminBreadcrumbs items={[{ label: 'Catalog', to: '/admin/products' }, { label: 'Brands & Suppliers' }]} />
-        <h1 className="text-2xl font-bold text-neutral-900">Brands & Suppliers</h1>
-        <p className="text-neutral-500 mt-1 mb-6">
-          Marketplace vendors (brands/suppliers). Add vendors, approve products, and set commission rules.
-        </p>
+        <AdminPageHeader
+          title="Brands & Suppliers"
+          description="Marketplace vendors (brands/suppliers). Add vendors, approve products, and set commission rules."
+        >
+          <button
+            type="button"
+            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+          >
+            + Add vendor
+          </button>
+        </AdminPageHeader>
 
         <div className="flex gap-4 mb-6 border-b border-admin pb-2">
           {SECTIONS.map((s) => (

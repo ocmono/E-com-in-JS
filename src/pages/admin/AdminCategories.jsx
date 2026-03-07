@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AdminBreadcrumbs } from '../../components/admin/AdminBreadcrumbs.jsx'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader.jsx'
 import { categories } from '../../data/adminMockData.js'
 
 const FolderIcon = () => (
@@ -25,26 +25,17 @@ export function AdminCategories() {
 
   return (
     <div>
-      <AdminBreadcrumbs
-        items={[
-          { label: 'Catalog', to: '/admin/products' },
-          { label: 'Categories' },
-        ]}
-      />
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Categories</h1>
-          <p className="text-neutral-500 mt-1">
-            Product categories. Add or edit categories, then assign products in the product editor.
-          </p>
-        </div>
+      <AdminPageHeader
+        title="Categories"
+        description="Product categories. Add or edit categories, then assign products in the product editor."
+      >
         <Link
           to="/admin/categories/new"
-          className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 flex items-center gap-2 w-fit"
+          className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 flex items-center gap-2"
         >
           <span>+</span> Add category
         </Link>
-      </div>
+      </AdminPageHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-admin-bg border border-admin rounded-lg shadow p-6">

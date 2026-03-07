@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AdminBreadcrumbs } from '../../components/admin/AdminBreadcrumbs.jsx'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader.jsx'
 import { useAdminProductStore } from '../../stores/adminProductStore.js'
 
 const BoxIcon = () => (
@@ -23,17 +23,10 @@ export function AdminProductVariations() {
 
   return (
     <div>
-      <AdminBreadcrumbs
-        items={[
-          { label: 'Catalog', to: '/admin/products' },
-          { label: 'Products', to: '/admin/products' },
-          { label: 'Product variations' },
-        ]}
+      <AdminPageHeader
+        title="Product variations"
+        description="Manage SKU, price, and stock per variation for each product. Click Manage to open a product's variations."
       />
-      <h1 className="text-2xl font-bold text-neutral-900">Product variations</h1>
-      <p className="text-neutral-500 mt-1 mb-6">
-        Manage SKU, price, and stock per variation for each product. Click Manage to open a product&apos;s variations.
-      </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-admin-bg border border-admin rounded-lg shadow p-6">

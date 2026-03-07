@@ -11,7 +11,7 @@ export function AdminBreadcrumbs({ items }) {
         <span key={item.label}>
           {i > 0 && <span className="mx-1">/</span>}
           {item.to ? (
-            <Link to={item.to} className="hover:text-neutral-700">
+            <Link to={item.to} className="text-blue-600 hover:text-blue-700">
               {item.label}
             </Link>
           ) : (

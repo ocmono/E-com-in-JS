@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AdminBreadcrumbs } from '../../components/admin/AdminBreadcrumbs.jsx'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader.jsx'
 import { orders } from '../../data/adminMockData.js'
 
 const StarIcon = () => (
@@ -30,16 +30,11 @@ export function AdminOrders() {
 
   return (
     <div>
-      <AdminBreadcrumbs items={[{ label: 'Dashboard', to: '/admin' }, { label: 'Orders' }]} />
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Orders</h1>
-          <p className="text-neutral-500 mt-1">
-            Order management (OMS). View and manage orders, update status, print invoices and packing slips.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button
+      <AdminPageHeader
+        title="Orders"
+        description="Order management (OMS). View and manage orders, update status, print invoices and packing slips."
+      >
+        <button
             type="button"
             className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 flex items-center gap-2"
           >
@@ -57,12 +52,11 @@ export function AdminOrders() {
           <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
             <DownloadIcon /> Export PDF
           </button>
-        </div>
-      </div>
+      </AdminPageHeader>
 
       <div className="bg-admin-bg border border-admin rounded-lg shadow p-4 mb-6">
         <div className="flex flex-wrap items-end gap-4">
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1 min-w-[250px]">
             <label className="block text-xs font-medium text-neutral-500 mb-1">Order number / ID</label>
             <input
               type="text"

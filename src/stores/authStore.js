@@ -128,5 +128,3 @@ export const useAuthStore = create((set) => ({
 
   useDemoAdmin: () => set({ user: normalizeUser(DEMO_USER) }),
 }))
-
-fetchAllUser

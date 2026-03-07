@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AdminBreadcrumbs } from '../../components/admin/AdminBreadcrumbs.jsx'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader.jsx'
 import { productWorkflow } from '../../data/adminMockData.js'
 
 const WORKFLOW_SECTIONS = ['Monitoring dashboard', 'Workflow queue']
@@ -14,11 +14,10 @@ export function AdminProductWorkflow() {
   return (
     <div className="flex gap-8">
       <div className="flex-1 min-w-0">
-        <AdminBreadcrumbs items={[{ label: 'Catalog', to: '/admin/products' }, { label: 'Product workflow' }]} />
-        <h1 className="text-2xl font-bold text-neutral-900">Product workflow</h1>
-        <p className="text-neutral-500 mt-1 mb-6">
-          Draft, approval and scheduling. Monitoring dashboard and workflow queue with QC and channel sync.
-        </p>
+        <AdminPageHeader
+          title="Product workflow"
+          description="Draft, approval and scheduling. Monitoring dashboard and workflow queue with QC and channel sync."
+        />
 
         <div className="flex gap-4 mb-6 border-b border-admin pb-2">
           {WORKFLOW_SECTIONS.map((s) => (

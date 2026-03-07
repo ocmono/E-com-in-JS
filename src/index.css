@@ -12,9 +12,23 @@
 /* Admin theme variables */
 :root {
   --admin-border: #e1e4e8;
-  --admin-bg: #ffffff;
+  /* --admin-bg: #ffffff; */
   --admin-page-bg: #f6f8fa;
   --admin-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* Table component - matches admin product list design */
+:root {
+  --table-filter-bg: #f8f8f8;
+  --table-header-bg: #f0f0f0;
+  --table-border: #dddddd;
+  --table-text: #333333;
+  --table-text-muted: #555555;
+  --table-placeholder: #999999;
+  --table-primary: #1890ff;
+  --table-primary-hover: #40a9ff;
+  --admin-canvas-bg: #f6f8fa;
+  --text-75rem : 0.75rem;
 }
 
 /* Store scrollbar - thin, light theme */
@@ -69,4 +83,8 @@ html.store-theme::-webkit-scrollbar-button {
 }
 .admin-sidebar-scroll::-webkit-scrollbar-button {
   display: none;
+}
+
+.text-75rem {
+  font-size: 0.75rem;
 }
