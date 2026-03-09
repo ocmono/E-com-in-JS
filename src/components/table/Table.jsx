@@ -45,7 +45,7 @@ const SearchIcon = memo(() => (
 ));
 
 const EmptyBoxIcon = memo(() => (
-  <svg className="w-16 h-16" fill="none" stroke="var(--table-placeholder)" strokeWidth={1.5} viewBox="0 0 24 24">
+  <svg className="w-16 h-16" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round"
       d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
   </svg>
@@ -79,12 +79,14 @@ function Table({
   data = [],
   selectable = false,
   filterBar,
+  title,
   emptyState = {},
   pagination,
   perPageOptions = [10, 25, 50, 100],
   rowKey = "id",
+  className = "",
+  bordered = true,
 }) {
-
   const {
     message = "No items found",
     subMessage = "Try adjusting your filters or add a new item to get started.",
@@ -106,107 +108,131 @@ function Table({
     end = total === 0 ? 0 : Math.min(pagination.page * pagination.perPage, total);
   }
 
+  const hasHeader = title || filterBar;
+  const hasPagination = pagination;
+
   return (
-    <div className="rounded-lg overflow-hidden border bg-white" style={{ borderColor: "var(--table-border)" }}>
+    <div 
+      className={`rounded-md overflow-hidden ${bordered ? 'border' : ''} bg-white ${className}`}
+      style={{ borderColor: "var(--table-border)" }}
+    >
+      {/* Header Section */}
+      {hasHeader && (
+        <div 
+          className="px-4 py-2.5 flex flex-col gap-4"
+          style={{ 
+            borderBottom: hasHeader && (data.length > 0 || isEmpty) ? "1px solid var(--table-border)" : "none"
+          }}
+        >
+          {title && <h3 className="font-semibold text-neutral-900">{title}</h3>}
+          {filterBar && <div>{filterBar}</div>}
+        </div>
+      )}
 
-      {filterBar && <div className="p-4">{filterBar}</div>}
-
+      {/* Table Container */}
       <div className="overflow-x-auto">
-
-        <table className="min-w-full">
-
-          {/* HEADER */}
-
-          <thead style={{ borderBlock: "1px solid var(--table-border)" }}>
-
+        <table className="min-w-full border-collapse">
+          {/* Header */}
+          <thead>
             <tr style={{ background: "var(--admin-canvas-bg)" }}>
-
               {selectable && (
-                <th className="px-4 py-3 text-center" style={headerStyle}>
+                <th 
+                  className="px-4 py-3 text-center"
+                  style={{ 
+                    ...headerStyle,
+                    borderBottom: "1px solid var(--table-border)"
+                  }}
+                >
                   <input type="checkbox" />
                 </th>
               )}
-
               {columns.map((col) => (
-                <th key={col.key} className="px-4 py-2" style={{ ...headerStyle, textAlign: col.align || "center" }}>
+                <th 
+                  key={col.key} 
+                  className="px-4 py-2" 
+                  style={{ 
+                    ...headerStyle, 
+                    textAlign: col.align || "center",
+                    borderBottom: "1px solid var(--table-border)"
+                  }}
+                >
                   {col.label}
                 </th>
               ))}
-
             </tr>
-
           </thead>
 
-          {/* BODY */}
-
+          {/* Body */}
           <tbody>
-
             {isEmpty ? (
               <tr>
-                <td colSpan={columns.length + (selectable ? 1 : 0)} className="px-4 py-16 text-center">
+                <td 
+                  colSpan={columns.length + (selectable ? 1 : 0)} 
+                  className="px-4 py-16 text-center"
+                  style={{ borderBottom: hasPagination ? "1px solid var(--table-border)" : "none" }}
+                >
                   <div className="flex flex-col items-center gap-3">
-
                     <EmptyBoxIcon />
-
                     <p className="text-base text-gray-500">{message}</p>
                     <p className="text-sm text-gray-400">{subMessage}</p>
-
                     {actionLabel && onAction && (
-                      <button onClick={onAction}
+                      <button 
+                        onClick={onAction}
                         className="px-4 py-2 text-white rounded-md"
-                        style={{ background: "var(--table-primary)" }}>
+                        style={{ background: "var(--table-primary)" }}
+                      >
                         + {actionLabel}
                       </button>
                     )}
-
                   </div>
                 </td>
               </tr>
             ) : (
               data.map((row, i) => (
-
-                <tr key={row[rowKey] ?? i}
+                <tr 
+                  key={row[rowKey] ?? i}
                   className="hover:bg-neutral-50"
-                  style={{ borderBottom: "1px solid var(--table-border)" }}>
-
+                  style={{ 
+                    borderBottom: i < data.length - 1 || hasPagination 
+                      ? "1px solid var(--table-border)" 
+                      : "none"
+                  }}
+                >
                   {selectable && (
                     <td className="px-4 py-3 text-center">
                       <input type="checkbox" />
                     </td>
                   )}
-
                   {columns.map((col) => (
-                    <td key={col.key}
+                    <td 
+                      key={col.key}
                       className="px-4 py-3 text-sm"
-                      style={{ textAlign: col.align || "center", color: "var(--table-text)" }}>
-
+                      style={{ 
+                        textAlign: col.align || "center", 
+                        color: "var(--table-text)" 
+                      }}
+                    >
                       {col.render
                         ? col.render(row[col.key], row)
                         : renderValue(row[col.key])}
-
                     </td>
                   ))}
-
                 </tr>
-
               ))
             )}
-
           </tbody>
-
         </table>
-
       </div>
 
-      {/* PAGINATION */}
-
-      {pagination && (
-
+      {/* Pagination */}
+      {hasPagination && (
         <div
-          className="flex flex-wrap items-center justify-between gap-4 px-4 py-3 "
-          style={{ background: "var(--admin-canvas-bg)", borderColor: "var(--table-border)" }}
+          className="flex flex-wrap items-center justify-between gap-4 px-4 py-3"
+          style={{ 
+            background: "var(--admin-canvas-bg)",
+            borderTop: "1px solid var(--table-border)"
+          }}
         >
-
           <div className="flex items-center gap-3 text-sm text-gray-600">
             <span>Showing {start}-{end} of {total}</span>
             <select
@@ -220,7 +246,6 @@ function Table({
               ))}
             </select>
           </div>
-
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -247,11 +272,8 @@ function Table({
               Next &gt;
             </button>
           </div>
-
         </div>
-
       )}
-
     </div>
   );
 }
@@ -340,7 +362,7 @@ export function TableFilterBarWithSearch({ search, export: exportProp, import: i
       </div>
       {filter && filterVariant === "panel" && panelOpen && (
         <div
-          className="mt-4 pt-4  flex flex-wrap items-end justify-between gap-4"
+          className="mt-4 pt-4 flex flex-wrap items-end justify-between gap-4"
           style={{ borderColor: "var(--table-border)" }}
         >
           <div className="flex flex-wrap items-end gap-4 flex-1 min-w-0">
@@ -419,75 +441,53 @@ export function TableFilterPanel({ label = "Filter", children, onApply, onClear,
 }
 
 export function TableFilterDropdown({ label = "Filter", children, onApply, onClear, activeCount = 0 }) {
-
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
-
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false);
     }
-
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => document.removeEventListener("mousedown", handleClickOutside);
-
   }, []);
 
   return (
-
     <div className="relative" ref={ref}>
-
       <button
         onClick={() => setOpen(!open)}
         className="inline-flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium">
-
         <FilterIcon />
         {label}
-
         {activeCount > 0 && (
           <span className="text-xs px-1.5 py-0.5 rounded text-white"
             style={{ background: "var(--table-primary)" }}>
             {activeCount}
           </span>
         )}
-
         <ChevronDownIcon />
-
       </button>
-
       {open && (
-
         <div className="absolute right-0 mt-1 z-50 min-w-[240px] rounded-lg shadow-lg border p-4 bg-white">
-
           <div className="space-y-4 mb-4">
             {children}
           </div>
-
           <div className="flex justify-between gap-2 pt-2 border-t">
-
             <button
               onClick={() => { onApply?.(); setOpen(false); }}
               className="px-3 py-1.5 text-sm rounded text-white"
               style={{ background: "var(--table-primary)" }}>
               Apply
             </button>
-
             <button
               onClick={() => { onClear?.(); setOpen(false); }}
               className="px-3 py-1.5 text-sm rounded border">
               Clear
             </button>
-
           </div>
-
         </div>
-
       )}
-
     </div>
-
   );
 }
 
@@ -496,21 +496,16 @@ export function TableFilterDropdown({ label = "Filter", children, onApply, onCle
 /* -------------------------------- */
 
 export const TableSearchInput = ({ label = "Search", placeholder = "Search...", value, onChange }) => (
-
   <div className="flex-1 min-w-[250px]">
-
     <label className="block text-xs font-medium mb-1 text-gray-500">
       {label}
     </label>
-
     <input
       value={value}
       onChange={(e) => onChange?.(e.target.value)}
       placeholder={placeholder}
       className="w-full px-3 py-2 border rounded-md text-sm" />
-
   </div>
-
 );
 
 /* -------------------------------- */
@@ -518,30 +513,22 @@ export const TableSearchInput = ({ label = "Search", placeholder = "Search...", 
 /* -------------------------------- */
 
 export const TableSelect = ({ label, value, onChange, options = [], placeholder }) => (
-
   <div>
-
     <label className="block text-xs font-medium mb-1 text-gray-500">
       {label}
     </label>
-
     <select
       value={value}
       onChange={(e) => onChange?.(e.target.value)}
       className="px-3 py-2 border rounded-md text-sm">
-
       {placeholder && <option value="">{placeholder}</option>}
-
       {options.map(opt => (
         <option key={opt.value} value={opt.value}>
           {opt.label}
         </option>
       ))}
-
     </select>
-
   </div>
-
 );
 
 /* -------------------------------- */
@@ -549,17 +536,13 @@ export const TableSelect = ({ label, value, onChange, options = [], placeholder 
 /* -------------------------------- */
 
 export const TableSearchButton = ({ onClick, children = "Search" }) => (
-
   <button
     onClick={onClick}
     className="inline-flex items-center gap-2 px-4 py-2 text-white rounded-md"
     style={{ background: "var(--table-primary)" }}>
-
     <SearchIcon />
     {children}
-
   </button>
-
 );
 
 /* -------------------------------- */
@@ -567,18 +550,12 @@ export const TableSearchButton = ({ onClick, children = "Search" }) => (
 /* -------------------------------- */
 
 export const TableCheckbox = ({ label, checked, onChange, icon }) => (
-
   <label className="flex items-center gap-2 text-sm text-gray-500">
-
     <input
       type="checkbox"
       checked={checked}
       onChange={(e) => onChange?.(e.target.checked)} />
-
     {icon && <span className="opacity-70">{icon}</span>}
-
     {label}
-
   </label>
-
 );

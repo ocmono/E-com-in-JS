@@ -308,10 +308,10 @@ export function AdminProductForm() {
       attributes: attributeValues,
       variants:
         variants.length > 0
-          ? variants.map((v) => ({
-              ...v,
-              price: parseFloat(v.price) || basePrice,
-              stock: parseInt(v.stock, 10) || 0,
+        ? variants.map((v) => ({
+            ...v,
+            price: parseFloat(v.price) || basePrice,
+            stock: parseInt(v.stock, 10) || 0,
               images: (variantImages[v.id] || []).filter(Boolean),
             }))
           : [{ id: 'v0', sku: 'DEFAULT', attributes: {}, price: basePrice, stock: parseInt(stock, 10) || 0, images: [] }],
@@ -361,10 +361,10 @@ export function AdminProductForm() {
   return (
     <div className="min-h-screen ">
       <div className="flex items-center justify-between mb-6">
-        <div>
+    <div>
           <h1 className="text-xl font-bold text-neutral-900">
-            {isEdit ? 'Edit product' : 'Add product'}
-          </h1>
+          {isEdit ? 'Edit product' : 'Add product'}
+        </h1>
           <p className="text-sm text-neutral-500 mt-0.5">
             {isEdit ? 'Update product details, pricing, and inventory.' : 'Create a new product with type, SKU, price, and categories.'}
           </p>
@@ -432,46 +432,46 @@ export function AdminProductForm() {
               </div>
               <div>
                 <label className={labelClass}>Name *</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
                   className={inputClass}
                   placeholder="Product name"
-                />
-              </div>
+              />
+            </div>
               <div className="w-1/2">
                 <label className={labelClass}>Slug (optional, auto from name if empty)</label>
-                <input
-                  type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
                   className={inputClass}
                   placeholder="url-slug"
-                />
-              </div>
-              <div>
+              />
+            </div>
+            <div>
                 <label className={labelClass}>Short description</label>
-                <input
-                  type="text"
-                  value={shortDescription}
-                  onChange={(e) => setShortDescription(e.target.value)}
+              <input
+                type="text"
+                value={shortDescription}
+                onChange={(e) => setShortDescription(e.target.value)}
                   className={inputClass}
-                  placeholder="Brief summary"
-                />
-              </div>
+                placeholder="Brief summary"
+              />
+            </div>
               <div>
                 <label className={labelClass}>Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={4}
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
                   className={inputClass}
                   placeholder="Full description"
-                />
-              </div>
+              />
             </div>
+          </div>
           </SectionCard>
 
           <SectionCard
@@ -482,38 +482,38 @@ export function AdminProductForm() {
             onToggle={toggleSection}
           >
             <div className="space-y-4 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
                   <label className={labelClass}>Price *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    required
+              <input
+                type="number"
+                step="0.01"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
                     className={inputClass}
-                  />
-                </div>
-                <div>
+              />
+            </div>
+            <div>
                   <label className={labelClass}>Compare at (optional)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={compareAtPrice}
-                    onChange={(e) => setCompareAtPrice(e.target.value)}
+              <input
+                type="number"
+                step="0.01"
+                value={compareAtPrice}
+                onChange={(e) => setCompareAtPrice(e.target.value)}
                     className={inputClass}
-                  />
-                </div>
-                <div>
+              />
+            </div>
+            <div>
                   <label className={labelClass}>Stock</label>
-                  <input
-                    type="number"
-                    value={stock}
-                    onChange={(e) => setStock(e.target.value)}
+              <input
+                type="number"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
                     className={inputClass}
-                    placeholder="0"
-                  />
-                </div>
+                placeholder="0"
+              />
+            </div>
               </div>
               <div>
                 <h4 className="text-sm font-medium text-neutral-700 mb-2">Tiered pricing (qty slabs: 5 / 10 / 25)</h4>
@@ -522,7 +522,7 @@ export function AdminProductForm() {
                 </p>
                 {tieredPricing.map((t, i) => (
                   <div key={i} className="flex gap-2 mb-2">
-                    <input
+                <input
                       type="number"
                       placeholder="min qty"
                       value={t.minQty}
@@ -537,12 +537,12 @@ export function AdminProductForm() {
                       onChange={(e) => handleTierChange(i, 'price', e.target.value)}
                       className="w-24 px-3 py-2 border border-neutral-300 rounded text-sm"
                     />
-                  </div>
+            </div>
                 ))}
                 <button type="button" onClick={handleAddTier} className="text-sm text-red-600 hover:text-red-700 font-medium">
                   Add tier
                 </button>
-              </div>
+          </div>
               <div>
                 <h4 className="text-sm font-medium text-neutral-700 mb-2">Multi-currency prices (optional)</h4>
                 <p className="text-xs text-neutral-500 mb-2">e.g. EUR, GBP. Key = currency code, value = price.</p>
@@ -550,7 +550,7 @@ export function AdminProductForm() {
                   {Object.entries(multiCurrencyPrices).map(([code, val]) => (
                     <div key={code} className="flex items-center gap-2">
                       <label className="text-sm font-medium text-neutral-700 shrink-0">{code}:</label>
-                      <input
+                  <input
                         type="number"
                         step="0.01"
                         value={val}
@@ -560,14 +560,14 @@ export function AdminProductForm() {
                         placeholder="0"
                         className="w-20 px-3 py-1.5 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
                       />
-                      <button
-                        type="button"
+                <button
+                  type="button"
                         onClick={() =>
                           setMultiCurrencyPrices((m) => {
                             const next = { ...m }
                             delete next[code]
-                            return next
-                          })
+                      return next
+                    })
                         }
                         className="text-red-600 hover:text-red-700 text-base leading-none shrink-0"
                       >
@@ -641,10 +641,10 @@ export function AdminProductForm() {
                     placeholder="https://..."
                   />
                   <button type="button" onClick={() => handleRemoveImage(i)} className="text-sm text-red-600 hover:text-red-700 shrink-0">
-                    Remove
-                  </button>
-                </div>
-              ))}
+                  Remove
+                </button>
+              </div>
+            ))}
               <button type="button" onClick={handleAddImage} className="text-sm text-red-600 hover:text-red-700 font-medium">
                 Add Image URL
               </button>
@@ -660,21 +660,21 @@ export function AdminProductForm() {
           >
             <div className="pt-4 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
+            <button
+              type="button"
                   onClick={handleAddVariant}
                   className="px-3 py-1.5 rounded text-sm font-medium border border-neutral-400 hover:bg-neutral-200"
-                >
+            >
                   Add variant
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVariants(generateVariants())}
+            </button>
+            <button
+              type="button"
+              onClick={() => setVariants(generateVariants())}
                   className="px-3 py-1.5 rounded text-sm font-medium border border-neutral-400 hover:bg-neutral-200"
-                >
-                  Generate variants
-                </button>
-              </div>
+            >
+              Generate variants
+            </button>
+          </div>
               <p className="text-sm text-neutral-600">
                 Add at least one variant with a unique SKU, or one variant with SKU "DEFAULT" for simple products. Use
                 attribute builder above for Size/Color combinations.
@@ -694,7 +694,7 @@ export function AdminProductForm() {
                 >
                   Set stock 0 for all
                 </button>
-              </div>
+        </div>
               <div className="flex gap-4 flex-wrap">
                 {attributeNames.map((attrName) => (
                   <div key={attrName} className="flex gap-2 items-center">
@@ -712,9 +712,9 @@ export function AdminProductForm() {
                   + Add attribute
                 </button>
               </div>
-              <div className="overflow-x-auto">
+            <div className="overflow-x-auto">
                 <table className="min-w-full border border-neutral-200 rounded overflow-hidden">
-                  <thead>
+                <thead>
                     <tr className="bg-neutral-50">
                       <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600">SKU</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600">Price</th>
@@ -722,25 +722,25 @@ export function AdminProductForm() {
                       <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600">Stock</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600">Attributes</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600"></th>
-                    </tr>
-                  </thead>
+                  </tr>
+                </thead>
                   <tbody className="divide-y divide-neutral-200">
-                    {variants.map((v, i) => (
-                      <tr key={v.id}>
-                        <td className="px-4 py-2">
-                          <input
-                            type="text"
-                            value={v.sku}
-                            onChange={(e) => handleVariantChange(i, 'sku', e.target.value)}
+                  {variants.map((v, i) => (
+                    <tr key={v.id}>
+                      <td className="px-4 py-2">
+                        <input
+                          type="text"
+                          value={v.sku}
+                          onChange={(e) => handleVariantChange(i, 'sku', e.target.value)}
                             className="w-full px-2 py-1 border border-neutral-300 rounded text-sm"
-                          />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={v.price}
-                            onChange={(e) => handleVariantChange(i, 'price', e.target.value)}
+                        />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={v.price}
+                          onChange={(e) => handleVariantChange(i, 'price', e.target.value)}
                             className="w-20 px-2 py-1 border border-neutral-300 rounded text-sm"
                           />
                         </td>
@@ -750,16 +750,16 @@ export function AdminProductForm() {
                             value={v.compareAt ?? '-'}
                             onChange={(e) => handleVariantChange(i, 'compareAt', e.target.value)}
                             className="w-20 px-2 py-1 border border-neutral-300 rounded text-sm"
-                          />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input
-                            type="number"
-                            value={v.stock}
-                            onChange={(e) => handleVariantChange(i, 'stock', e.target.value)}
+                        />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="number"
+                          value={v.stock}
+                          onChange={(e) => handleVariantChange(i, 'stock', e.target.value)}
                             className="w-16 px-2 py-1 border border-neutral-300 rounded text-sm"
-                          />
-                        </td>
+                        />
+                      </td>
                         <td className="px-4 py-2 text-sm text-neutral-600">
                           {attributeNames.map((n) => v.attributes?.[n]).filter(Boolean).join(', ') || '-'}
                         </td>
@@ -768,11 +768,11 @@ export function AdminProductForm() {
                             Remove
                           </button>
                         </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
               <div className="mt-6">
                 <h4 className="text-sm font-medium text-neutral-700 mb-3">Variant images (optional — per-variant)</h4>
@@ -830,8 +830,8 @@ export function AdminProductForm() {
                           >
                             + Add image
                           </button>
-                        </div>
-                      )}
+          </div>
+        )}
                     </div>
                   ))}
                   {variants.length === 0 && (
@@ -1282,20 +1282,20 @@ export function AdminProductForm() {
             <div>
               <h3 className="text-sm font-semibold text-neutral-900 mb-4">Publish</h3>
               <div className="flex flex-col gap-3">
-                <button
-                  type="submit"
-                  disabled={saving}
+          <button
+            type="submit"
+            disabled={saving}
                   className="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:opacity-50 border border-neutral-300"
-                >
+          >
                   {saving ? 'Saving...' : isEdit ? 'Update product' : 'Create product'}
-                </button>
-                <Link
-                  to="/admin/products"
+          </button>
+          <Link
+            to="/admin/products"
                   className="w-full py-2.5 border border-neutral-300 rounded-md font-medium text-center hover:bg-neutral-50"
-                >
-                  Cancel
-                </Link>
-              </div>
+          >
+            Cancel
+          </Link>
+        </div>
             </div>
             <div className="space-y-3">
               <label className="flex items-center gap-2">
