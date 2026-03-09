@@ -88,10 +88,10 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  register: async (email, password, name) => {
+  register: async (email, password, full_name, phone) => {
     set({ loading: true })
     try {
-      const res = await authApi.register({ email, password, name })
+      const res = await authApi.register({ email, password, full_name, phone })
       let u = normalizeUser(res.user ?? res)
       if (!u?.email && !u?.id) {
         const me = await authApi.getMe()

@@ -35,7 +35,8 @@ export function Login() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">{error}</div>
+          // <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">{error}</div>
+          <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">Invalid email or password</div>
         )}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">

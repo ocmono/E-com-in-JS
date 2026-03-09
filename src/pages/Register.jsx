@@ -12,13 +12,14 @@ export function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
   const [error, setError] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     try {
-      await register(email, password, name)
+      await register(email, password, name || null, phone || null)
       navigate('/')
     } catch (err) {
       setError(err.message || 'Registration failed. No backend connected.')
@@ -56,6 +57,19 @@ export function Register() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
+          />
+        </div>
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium text-neutral-700 mb-1">
+            Phone
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="Optional"
             className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
           />
         </div>

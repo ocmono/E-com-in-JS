@@ -13,8 +13,13 @@ export async function login({ email, password }) {
   return res
 }
 
-export async function register({ email, password, name }) {
-  const res = await api.post('/auth/register', { email, password, name })
+export async function register({ email, password, full_name, phone }) {
+  const res = await api.post('/auth/register', {
+    email,
+    password,
+    full_name: full_name || null,
+    phone: phone || null,
+  })
   if (res.access_token ?? res.token) {
     setToken({ access_token: res.access_token ?? res.token, token_type: res.token_type ?? 'bearer' })
   }
