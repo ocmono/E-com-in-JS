@@ -21,7 +21,7 @@
 :root {
   --table-filter-bg: #f8f8f8;
   --table-header-bg: #f0f0f0;
-  --table-border: #dddddd;
+  --table-border: #d2d1d1;
   --table-text: #333333;
   --table-text-muted: #555555;
   --table-placeholder: #999999;
@@ -55,7 +55,7 @@ html.store-theme::-webkit-scrollbar-button {
 
 /* Admin sidebar - glass style, left border accent only */
 .admin-sidebar {
-  --sidebar-bg: #1a1a2e;
+  --sidebar-bg: #0d1117;
   --sidebar-category: #b0b0c0;
   --sidebar-link: #abb2bf;
   --sidebar-active-accent: #5b9be0;

@@ -1,13 +1,16 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader.jsx'
+import {
+  Table,
+  TableFilterBarWithSearch,
+  TableSearchInput,
+  TableSelect,
+  TableFilterDropdown,
+  TableCheckbox,
+} from '../../components/table'
 import { useAdminProductStore } from '../../stores/adminProductStore.js'
-
-const SearchIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-  </svg>
-)
+import { PER_PAGE_OPTIONS } from '../../config.js'
 
 const HelpIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15,19 +18,61 @@ const HelpIcon = () => (
   </svg>
 )
 
-const ExportIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-  </svg>
-)
-
-const ImportIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-  </svg>
-)
+const getColumns = (deleteProduct) => [
+  {
+    key: 'name',
+    label: 'Product',
+    align: 'left',
+    render: (val, row) => (
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-neutral-100 rounded flex-shrink-0 overflow-hidden">
+          {row.images?.[0] ? (
+            <img src={row.images[0]} alt="" className="w-full h-full object-cover" />
+          ) : null}
+        </div>
+        <div>
+          <p className="font-medium text-neutral-900">{val}</p>
+          <p className="text-sm text-neutral-500">{row.slug}</p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    key: 'price',
+    label: 'Price',
+    render: (val) => `$${(val ?? 0).toFixed(2)}`,
+  },
+  {
+    key: 'stock',
+    label: 'Stock',
+    render: (val) => `${val ?? 0} in stock`,
+  },
+  {
+    key: 'id',
+    label: 'Action',
+    align: 'right',
+    render: (id, row) => (
+      <div className="flex gap-2 justify-end">
+        <Link to={`/admin/products/${id}`} className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+          Edit
+        </Link>
+        <Link to={`/product/${row.slug}`} className="text-neutral-500 hover:text-neutral-700 text-sm">
+          View
+        </Link>
+        <button
+          type="button"
+          onClick={() => deleteProduct(id)}
+          className="text-red-600 hover:text-red-700 text-sm"
+        >
+          Delete
+        </button>
+      </div>
+    ),
+  },
+]
 
 export function AdminProducts() {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
   const [priceMin, setPriceMin] = useState('')
@@ -35,8 +80,63 @@ export function AdminProducts() {
   const [sort, setSort] = useState('newest')
   const [stock, setStock] = useState('all')
   const [featured, setFeatured] = useState(false)
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
 
   const { products, deleteProduct } = useAdminProductStore()
+
+  const filtered = products
+    .filter((p) => {
+      if (!search.trim()) return true
+      const q = search.toLowerCase()
+      const name = (p.name ?? '').toLowerCase()
+      const slug = (p.slug ?? '').toLowerCase()
+      const desc = (p.description ?? '').toLowerCase()
+      return name.includes(q) || slug.includes(q) || desc.includes(q)
+    })
+    .filter((p) => {
+      if (category === 'all') return true
+      return (p.categoryIds ?? []).includes(category)
+    })
+    .filter((p) => {
+      const pr = parseFloat(p.price) || 0
+      if (priceMin && pr < parseFloat(priceMin)) return false
+      if (priceMax && pr > parseFloat(priceMax)) return false
+      return true
+    })
+    .filter((p) => {
+      if (stock === 'all') return true
+      const s = p.stock ?? 0
+      if (stock === 'in_stock') return s > 0
+      if (stock === 'out_of_stock') return s <= 0
+      return true
+    })
+    .filter((p) => {
+      if (!featured) return true
+      return p.featured === true
+    })
+    .sort((a, b) => {
+      if (sort === 'newest') return (b.createdAt ?? '').localeCompare(a.createdAt ?? '')
+      if (sort === 'oldest') return (a.createdAt ?? '').localeCompare(b.createdAt ?? '')
+      if (sort === 'price_asc') return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0)
+      if (sort === 'price_desc') return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0)
+      return 0
+    })
+
+  const total = filtered.length
+  const totalPages = Math.max(1, Math.ceil(total / perPage))
+  const start = (page - 1) * perPage
+  const paginated = filtered.slice(start, start + perPage)
+
+  const handlePageChange = (newPage) => setPage(Math.max(1, Math.min(newPage, totalPages)))
+  const handlePerPageChange = (newPerPage) => {
+    setPerPage(newPerPage)
+    setPage(1)
+  }
+
+  const filterActiveCount = [category !== 'all', priceMin, priceMax, stock !== 'all', featured].filter(Boolean).length
+
+  useEffect(() => setPage(1), [search, category, priceMin, priceMax, sort, stock, featured])
 
   return (
     <div>
@@ -50,151 +150,140 @@ export function AdminProducts() {
         >
           <span>+</span> Add new product
         </Link>
-          <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
-            Optimize product catalog
-          </button>
-          <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
-            <HelpIcon /> Help
-          </button>
-          <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
-            <ExportIcon /> Export
-          </button>
-          <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
-            <ImportIcon /> Import
-          </button>
-          <Link
-            to="/admin/products/batch"
-            className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50"
-          >
-            Batch create
-          </Link>
+        <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
+          Optimize product catalog
+        </button>
+        <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
+          <HelpIcon /> Help
+        </button>
+        <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
+          Export
+        </button>
+        <button type="button" className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50 flex items-center gap-2">
+          Import
+        </button>
+        <Link
+          to="/admin/products/batch"
+          className="px-4 py-2 border border-admin rounded-md text-sm font-medium hover:bg-neutral-50"
+        >
+          Batch create
+        </Link>
       </AdminPageHeader>
 
-      <div className="bg-admin-bg border border-admin rounded-lg shadow p-4 mb-6">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex-1 min-w-[250px]">
-            <label className="block text-xs font-medium text-neutral-500 mb-1">Search</label>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Name or description..."
-              className="w-full px-3 py-2 border border-admin rounded-md text-sm bg-admin-bg"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-neutral-500 mb-1">Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="px-3 py-2 border border-admin rounded-md text-sm bg-admin-bg"
-            >
-              <option value="all">All categories</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-neutral-500 mb-1">Price min</label>
-            <input
-              type="text"
-              value={priceMin}
-              onChange={(e) => setPriceMin(e.target.value)}
-              placeholder="Min"
-              className="w-24 px-3 py-2 border border-admin rounded-md text-sm bg-admin-bg"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-neutral-500 mb-1">Price max</label>
-            <input
-              type="text"
-              value={priceMax}
-              onChange={(e) => setPriceMax(e.target.value)}
-              placeholder="Max"
-              className="w-24 px-3 py-2 border border-admin rounded-md text-sm bg-admin-bg"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-neutral-500 mb-1">Sort</label>
-            <select
+      <Table
+        columns={getColumns(deleteProduct)}
+        data={paginated}
+        rowKey="id"
+        filterBar={
+          <TableFilterBarWithSearch
+            export={{ label: 'Export', onClick: () => {} }}
+            import={{ label: 'Import', onClick: () => {} }}
+            search={
+              <TableSearchInput
+                label="Search"
+                placeholder="Name or description..."
+                value={search}
+                onChange={setSearch}
+              />
+            }
+            filter={
+              <TableFilterDropdown
+                label="Filter"
+                activeCount={filterActiveCount}
+                onApply={() => {}}
+                onClear={() => {
+                  setCategory('all')
+                  setPriceMin('')
+                  setPriceMax('')
+                  setStock('all')
+                  setFeatured(false)
+                }}
+              >
+                <TableSelect
+                  label="Category"
+                  value={category}
+                  onChange={setCategory}
+                  options={[{ value: 'all', label: 'All categories' }]}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-gray-500">Price min</label>
+                    <input
+                      type="number"
+                      value={priceMin}
+                      onChange={(e) => setPriceMin(e.target.value)}
+                      placeholder="Min"
+                      className="w-full px-3 py-2 border rounded-md text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-gray-500">Price max</label>
+                    <input
+                      type="number"
+                      value={priceMax}
+                      onChange={(e) => setPriceMax(e.target.value)}
+                      placeholder="Max"
+                      className="w-full px-3 py-2 border rounded-md text-sm"
+                    />
+                  </div>
+                </div>
+                <TableSelect
+                  label="Sort"
+                  value={sort}
+                  onChange={setSort}
+                  options={[
+                    { value: 'newest', label: 'Newest first' },
+                    { value: 'oldest', label: 'Oldest first' },
+                    { value: 'price_asc', label: 'Price: low to high' },
+                    { value: 'price_desc', label: 'Price: high to low' },
+                  ]}
+                />
+                <TableSelect
+                  label="Stock"
+                  value={stock}
+                  onChange={setStock}
+                  options={[
+                    { value: 'all', label: 'All stock' },
+                    { value: 'in_stock', label: 'In stock' },
+                    { value: 'out_of_stock', label: 'Out of stock' },
+                  ]}
+                />
+                <TableCheckbox
+                  label="Featured only"
+                  checked={featured}
+                  onChange={setFeatured}
+                />
+              </TableFilterDropdown>
+            }
+          >
+            <TableSelect
+              label="Sort"
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="px-3 py-2 border border-admin rounded-md text-sm bg-admin-bg"
-            >
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">Price: high to low</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-neutral-500 mb-1">Stock</label>
-            <select
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
-              className="px-3 py-2 border border-admin rounded-md text-sm bg-admin-bg"
-            >
-              <option value="all">All stock</option>
-              <option value="in_stock">In stock</option>
-              <option value="out_of_stock">Out of stock</option>
-            </select>
-          </div>
-          <div className="flex items-end gap-2">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
-              <span className="text-sm">Featured</span>
-            </label>
-            <button
-              type="button"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 flex items-center gap-2"
-            >
-              <SearchIcon /> Search
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-admin-bg border border-admin rounded-lg shadow overflow-hidden">
-        {products.length === 0 ? (
-          <div className="p-16 text-center">
-            <p className="text-neutral-500 mb-4">No products yet.</p>
-            <Link to="/admin/products/new" className="text-blue-600 hover:text-blue-700 font-medium">
-              Add your first product
-            </Link>
-          </div>
-        ) : (
-          <div className="divide-y divide-admin">
-            {products.map((product) => (
-              <div key={product.id} className="flex items-center gap-4 p-4 hover:bg-neutral-50">
-                <input type="checkbox" className="rounded border-admin" />
-                <div className="w-14 h-14 bg-neutral-100 rounded flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-neutral-900">{product.name}</p>
-                  <p className="text-sm text-neutral-500">{product.slug}</p>
-                </div>
-                <div className="text-sm font-medium">${(product.price ?? 0).toFixed(2)}</div>
-                <div className="text-sm text-neutral-600">{product.stock ?? 0} in stock</div>
-                <div className="flex gap-2">
-                  <Link
-                    to={`/admin/products/${product.id}`}
-                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                  >
-                    Edit
-                  </Link>
-                  <Link to={`/product/${product.slug}`} className="text-neutral-500 hover:text-neutral-700 text-sm">
-                    View
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => deleteProduct(product.id)}
-                    className="text-red-600 hover:text-red-700 text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              onChange={setSort}
+              options={[
+                { value: 'newest', label: 'Newest first' },
+                { value: 'oldest', label: 'Oldest first' },
+                { value: 'price_asc', label: 'Price: low to high' },
+                { value: 'price_desc', label: 'Price: high to low' },
+              ]}
+            />
+          </TableFilterBarWithSearch>
+        }
+        emptyState={{
+          message: 'No products yet.',
+          subMessage: 'Add your first product to get started.',
+          actionLabel: 'Add product',
+          onAction: () => navigate('/admin/products/new'),
+        }}
+        pagination={{
+          page,
+          perPage,
+          total,
+          onPageChange: handlePageChange,
+          onPerPageChange: handlePerPageChange,
+        }}
+        perPageOptions={PER_PAGE_OPTIONS}
+      />
     </div>
   )
 }

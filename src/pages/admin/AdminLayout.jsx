@@ -143,8 +143,10 @@ function NavSection({ title, items, defaultOpen = true }) {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex items-center px-3 py-2 rounded-md text-sm ${
-                  isActive ? 'bg-neutral-700 text-white' : 'text-neutral-300 hover:bg-neutral-700/50 hover:text-white'
+                `flex items-center px-3 py-2 rounded-md text-sm transition-colors ${
+                  isActive
+                    ? 'bg-blue-500/25 backdrop-blur-sm text-white border-l-2 border-blue-400 -ml-[2px] pl-[14px]'
+                    : 'text-neutral-300 hover:bg-neutral-700/50 hover:text-white'
                 }`
               }
             >
@@ -171,8 +173,9 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen flex bg-neutral-100">
-      <aside className="w-64 bg-neutral-800 text-neutral-200 flex flex-col fixed inset-y-0">
+    // <div className="min-h-screen flex bg-neutral-100">
+    <div className="min-h-screen flex bg-[#f6f8fa]">
+      <aside className="w-64 bg-neutral-900 text-neutral-200 flex flex-col fixed inset-y-0">
         <div className="p-4 border-b border-neutral-700">
           <Link to="/" className="text-lg font-bold text-white hover:text-neutral-200 flex items-center gap-2">
             <span>OC Mono Store</span>
@@ -187,8 +190,10 @@ export function AdminLayout() {
             to="/admin"
             end
             className={({ isActive }) =>
-              `flex items-center gap-2 px-3 py-2 rounded-md text-sm mb-4 ${
-                isActive ? 'bg-neutral-700 text-white' : 'text-neutral-300 hover:bg-neutral-700/50 hover:text-white'
+              `flex items-center gap-2 px-3 py-2 rounded-sm text-sm mb-4 transition-colors ${
+                isActive
+                  ? 'bg-blue-500/25 backdrop-blur-sm text-white border-l-2 border-blue-400 -ml-[2px] pl-[14px]'
+                  : 'text-neutral-300 hover:bg-neutral-700/50 hover:text-white'
               }`
             }
           >

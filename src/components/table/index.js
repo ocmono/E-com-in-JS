@@ -5,6 +5,7 @@ export {
   TableFilterBar,
   TableFilterBarWithSearch,
   TableFilterDropdown,
+  TableFilterPanel,
   TableSearchInput,
   TableSelect,
   TableSearchButton,

@@ -13,55 +13,41 @@ const Icon = ({ children, className = "w-4 h-4" }) => (
 const FilterIcon = memo(() => (
   <Icon>
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
   </Icon>
 ));
 
 const ExportIcon = memo(() => (
   <Icon>
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-  </Icon>
-));
-
-const ImportIcon = memo(() => (
-  <Icon>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m-4-4l4-4m4 4V4"/>
-  </Icon>
-));
-
-const UploadIcon = memo(() => (
-  <Icon>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
   </Icon>
 ));
 
 const DownloadIcon = memo(() => (
   <Icon>
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
   </Icon>
 ));
 
 const ChevronDownIcon = memo(() => (
   <Icon>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
   </Icon>
 ));
 
 const SearchIcon = memo(() => (
   <Icon>
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
   </Icon>
 ));
 
 const EmptyBoxIcon = memo(() => (
   <svg className="w-16 h-16" fill="none" stroke="var(--table-placeholder)" strokeWidth={1.5} viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round"
-      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
   </svg>
 ));
 
@@ -137,7 +123,7 @@ function Table({
 
               {selectable && (
                 <th className="px-4 py-3 text-center" style={headerStyle}>
-                  <input type="checkbox"/>
+                  <input type="checkbox" />
                 </th>
               )}
 
@@ -160,7 +146,7 @@ function Table({
                 <td colSpan={columns.length + (selectable ? 1 : 0)} className="px-4 py-16 text-center">
                   <div className="flex flex-col items-center gap-3">
 
-                    <EmptyBoxIcon/>
+                    <EmptyBoxIcon />
 
                     <p className="text-base text-gray-500">{message}</p>
                     <p className="text-sm text-gray-400">{subMessage}</p>
@@ -180,19 +166,19 @@ function Table({
               data.map((row, i) => (
 
                 <tr key={row[rowKey] ?? i}
-                    className="hover:bg-neutral-50"
-                    style={{ borderBottom: "1px solid var(--table-border)" }}>
+                  className="hover:bg-neutral-50"
+                  style={{ borderBottom: "1px solid var(--table-border)" }}>
 
                   {selectable && (
                     <td className="px-4 py-3 text-center">
-                      <input type="checkbox"/>
+                      <input type="checkbox" />
                     </td>
                   )}
 
                   {columns.map((col) => (
                     <td key={col.key}
-                        className="px-4 py-3 text-sm"
-                        style={{ textAlign: col.align || "center", color: "var(--table-text)" }}>
+                      className="px-4 py-3 text-sm"
+                      style={{ textAlign: col.align || "center", color: "var(--table-text)" }}>
 
                       {col.render
                         ? col.render(row[col.key], row)
@@ -280,87 +266,194 @@ export const TableFilterBar = ({ children }) => (
   <div className="flex flex-wrap items-end gap-4">{children}</div>
 );
 
-export function TableFilterBarWithSearch({ search, export: exportProp, import: importProp, filter, children }) {
+export function TableFilterBarWithSearch({ search, export: exportProp, import: importProp, filter, filterVariant = "panel", children }) {
+  const [panelOpen, setPanelOpen] = useState(false);
+
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div className="flex items-end gap-4 min-w-0">
-        {filter && (
-          <TableFilterDropdown
-            label={filter.label ?? "Filter"}
-            onApply={filter.onApply}
-            onClear={filter.onClear}
-            activeCount={filter.activeCount ?? 0}
+    <div className="space-y-0">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex items-end gap-4 min-w-0">
+          {search && <div className="min-w-[200px] max-w-md shrink-0">{search}</div>}
+        </div>
+        <div className="flex flex-wrap items-end gap-3 shrink-0">
+          {exportProp && (
+            <button
+              type="button"
+              onClick={exportProp.onClick}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium border shrink-0"
+              style={{ borderColor: "var(--table-border)" }}
+            >
+              <ExportIcon />
+              {exportProp.label ?? "Export"}
+            </button>
+          )}
+          {importProp && (
+            <button
+              type="button"
+              onClick={importProp.onClick}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium border shrink-0"
+              style={{ borderColor: "var(--table-border)" }}
+            >
+              <DownloadIcon />
+              {importProp.label ?? "Import"}
+            </button>
+          )}
+          {children}
+          {filter && filterVariant === "dropdown" && (
+            <TableFilterDropdown
+              label={filter.label ?? "Filter"}
+              onApply={filter.onApply}
+              onClear={filter.onClear}
+              activeCount={filter.activeCount ?? 0}
+            >
+              {filter.children}
+            </TableFilterDropdown>
+          )}
+          {filter && filterVariant === "panel" && (
+            <button
+              type="button"
+              onClick={() => setPanelOpen((o) => !o)}
+              className="inline-flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium shrink-0"
+              style={{ borderColor: "var(--table-border)" }}
+            >
+              <FilterIcon />
+              {filter.label ?? "Filter"}
+              {(filter.activeCount ?? 0) > 0 && (
+                <span className="text-xs px-1.5 py-0.5 rounded text-white" style={{ background: "var(--table-primary)" }}>
+                  {filter.activeCount}
+                </span>
+              )}
+              <ChevronDownIcon />
+            </button>
+          )}
+          {filter && filterVariant === "panel" && (
+          <button
+            type="button"
+            onClick={() => { filter.onClear?.(); setPanelOpen(false); }}
+            className="px-4 py-2 text-sm font-medium rounded-md border"
+            style={{ borderColor: "var(--table-border)" }}
           >
+            Clear
+          </button>
+          )}
+        </div>
+      </div>
+      {filter && filterVariant === "panel" && panelOpen && (
+        <div
+          className="mt-4 pt-4  flex flex-wrap items-end justify-between gap-4"
+          style={{ borderColor: "var(--table-border)" }}
+        >
+          <div className="flex flex-wrap items-end gap-4 flex-1 min-w-0">
             {filter.children}
-          </TableFilterDropdown>
-        )}
-        {search && <div className="min-w-[200px] max-w-md shrink-0">{search}</div>}
-      </div>
-      <div className="flex flex-wrap items-end gap-4 shrink-0">
-        {exportProp && (
-          <button
-            type="button"
-            onClick={exportProp.onClick}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium border shrink-0"
-            style={{ borderColor: "var(--table-border)" }}
-          >
-            <ExportIcon />
-            {exportProp.label ?? "Export"}
-          </button>
-        )}
-        {importProp && (
-          <button
-            type="button"
-            onClick={importProp.onClick}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium border shrink-0"
-            style={{ borderColor: "var(--table-border)" }}
-          >
-            <DownloadIcon />
-            {importProp.label ?? "Import"}
-          </button>
-        )}
-        {children}
-      </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => { filter.onApply?.(); }}
+              className="px-4 py-2 text-sm font-medium rounded-md text-white"
+              style={{ background: "var(--table-primary)" }}
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-export function TableFilterDropdown({ label="Filter", children, onApply, onClear, activeCount=0 }) {
+/**
+ * Standalone expandable filter panel. Use in any component when you need
+ * a filter that expands above content (e.g. above a table).
+ * Props: label, children, onApply, onClear, activeCount
+ */
+export function TableFilterPanel({ label = "Filter", children, onApply, onClear, activeCount = 0 }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="space-y-0">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium shrink-0"
+        style={{ borderColor: "var(--table-border)" }}
+      >
+        <FilterIcon />
+        {label}
+        {activeCount > 0 && (
+          <span className="text-xs px-1.5 py-0.5 rounded text-white" style={{ background: "var(--table-primary)" }}>
+            {activeCount}
+          </span>
+        )}
+        <ChevronDownIcon />
+      </button>
+      {open && (
+        <div
+          className="mt-4 pt-4 border-t flex flex-wrap items-end justify-between gap-4"
+          style={{ borderColor: "var(--table-border)" }}
+        >
+          <div className="flex flex-wrap items-end gap-4 flex-1 min-w-0">
+            {children}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => { onApply?.(); }}
+              className="px-4 py-2 text-sm font-medium rounded-md text-white"
+              style={{ background: "var(--table-primary)" }}
+            >
+              Apply
+            </button>
+            <button
+              type="button"
+              onClick={() => { onClear?.(); setOpen(false); }}
+              className="px-4 py-2 text-sm font-medium rounded-md border"
+              style={{ borderColor: "var(--table-border)" }}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-  const [open,setOpen] = useState(false);
+export function TableFilterDropdown({ label = "Filter", children, onApply, onClear, activeCount = 0 }) {
+
+  const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  useEffect(()=>{
+  useEffect(() => {
 
-    const handleClickOutside = (e)=>{
-      if(ref.current && !ref.current.contains(e.target)) setOpen(false);
+    const handleClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
     }
 
-    document.addEventListener("mousedown",handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
-    return ()=>document.removeEventListener("mousedown",handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
 
-  },[]);
+  }, []);
 
   return (
 
     <div className="relative" ref={ref}>
 
       <button
-        onClick={()=>setOpen(!open)}
+        onClick={() => setOpen(!open)}
         className="inline-flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium">
 
-        <FilterIcon/>
+        <FilterIcon />
         {label}
 
         {activeCount > 0 && (
           <span className="text-xs px-1.5 py-0.5 rounded text-white"
-                style={{ background:"var(--table-primary)" }}>
+            style={{ background: "var(--table-primary)" }}>
             {activeCount}
           </span>
         )}
 
-        <ChevronDownIcon/>
+        <ChevronDownIcon />
 
       </button>
 
@@ -375,14 +468,14 @@ export function TableFilterDropdown({ label="Filter", children, onApply, onClear
           <div className="flex justify-between gap-2 pt-2 border-t">
 
             <button
-              onClick={()=>{onApply?.(); setOpen(false);}}
+              onClick={() => { onApply?.(); setOpen(false); }}
               className="px-3 py-1.5 text-sm rounded text-white"
-              style={{ background:"var(--table-primary)" }}>
+              style={{ background: "var(--table-primary)" }}>
               Apply
             </button>
 
             <button
-              onClick={()=>{onClear?.(); setOpen(false);}}
+              onClick={() => { onClear?.(); setOpen(false); }}
               className="px-3 py-1.5 text-sm rounded border">
               Clear
             </button>
@@ -402,7 +495,7 @@ export function TableFilterDropdown({ label="Filter", children, onApply, onClear
 /* Search Input */
 /* -------------------------------- */
 
-export const TableSearchInput = ({label="Search",placeholder="Search...",value,onChange}) => (
+export const TableSearchInput = ({ label = "Search", placeholder = "Search...", value, onChange }) => (
 
   <div className="flex-1 min-w-[250px]">
 
@@ -412,9 +505,9 @@ export const TableSearchInput = ({label="Search",placeholder="Search...",value,o
 
     <input
       value={value}
-      onChange={(e)=>onChange?.(e.target.value)}
+      onChange={(e) => onChange?.(e.target.value)}
       placeholder={placeholder}
-      className="w-full px-3 py-2 border rounded-md text-sm"/>
+      className="w-full px-3 py-2 border rounded-md text-sm" />
 
   </div>
 
@@ -424,7 +517,7 @@ export const TableSearchInput = ({label="Search",placeholder="Search...",value,o
 /* Select */
 /* -------------------------------- */
 
-export const TableSelect = ({label,value,onChange,options=[],placeholder}) => (
+export const TableSelect = ({ label, value, onChange, options = [], placeholder }) => (
 
   <div>
 
@@ -434,12 +527,12 @@ export const TableSelect = ({label,value,onChange,options=[],placeholder}) => (
 
     <select
       value={value}
-      onChange={(e)=>onChange?.(e.target.value)}
+      onChange={(e) => onChange?.(e.target.value)}
       className="px-3 py-2 border rounded-md text-sm">
 
       {placeholder && <option value="">{placeholder}</option>}
 
-      {options.map(opt=>(
+      {options.map(opt => (
         <option key={opt.value} value={opt.value}>
           {opt.label}
         </option>
@@ -455,14 +548,14 @@ export const TableSelect = ({label,value,onChange,options=[],placeholder}) => (
 /* Button */
 /* -------------------------------- */
 
-export const TableSearchButton = ({onClick,children="Search"}) => (
+export const TableSearchButton = ({ onClick, children = "Search" }) => (
 
   <button
     onClick={onClick}
     className="inline-flex items-center gap-2 px-4 py-2 text-white rounded-md"
-    style={{ background:"var(--table-primary)" }}>
+    style={{ background: "var(--table-primary)" }}>
 
-    <SearchIcon/>
+    <SearchIcon />
     {children}
 
   </button>
@@ -473,14 +566,14 @@ export const TableSearchButton = ({onClick,children="Search"}) => (
 /* Checkbox */
 /* -------------------------------- */
 
-export const TableCheckbox = ({label,checked,onChange,icon}) => (
+export const TableCheckbox = ({ label, checked, onChange, icon }) => (
 
   <label className="flex items-center gap-2 text-sm text-gray-500">
 
     <input
       type="checkbox"
       checked={checked}
-      onChange={(e)=>onChange?.(e.target.checked)}/>
+      onChange={(e) => onChange?.(e.target.checked)} />
 
     {icon && <span className="opacity-70">{icon}</span>}
 
