@@ -21,6 +21,8 @@ const AdminLayout = lazy(() => import('./pages/admin/AdminLayout.jsx').then((m) 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx').then((m) => ({ default: m.AdminDashboard })))
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts.jsx').then((m) => ({ default: m.AdminProducts })))
 const AdminProductForm = lazy(() => import('./pages/admin/AdminProductForm.jsx').then((m) => ({ default: m.AdminProductForm })))
+const AdminProductVariationsList = lazy(() => import('./pages/admin/AdminProductVariationsList.jsx').then((m) => ({ default: m.AdminProductVariationsList })))
+const AdminVariationForm = lazy(() => import('./pages/admin/AdminVariationForm.jsx').then((m) => ({ default: m.AdminVariationForm })))
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories.jsx').then((m) => ({ default: m.AdminCategories })))
 const AdminProductVariations = lazy(() => import('./pages/admin/AdminProductVariations.jsx').then((m) => ({ default: m.AdminProductVariations })))
 const AdminAttributes = lazy(() => import('./pages/admin/AdminAttributes.jsx').then((m) => ({ default: m.AdminAttributes })))
@@ -78,6 +80,9 @@ function AppRoutes() {
         <Route path="products/new" element={<Suspense fallback={<Spinner />}><AdminProductForm /></Suspense>} />
         <Route path="products/batch" element={<Suspense fallback={<Spinner />}><AdminPlaceholder /></Suspense>} />
         <Route path="products/:id" element={<Suspense fallback={<Spinner />}><AdminProductForm /></Suspense>} />
+        <Route path="products/:productId/variations" element={<Suspense fallback={<Spinner />}><AdminProductVariationsList /></Suspense>} />
+        <Route path="products/:productId/variations/new" element={<Suspense fallback={<Spinner />}><AdminVariationForm /></Suspense>} />
+        <Route path="products/:productId/variations/:variationId" element={<Suspense fallback={<Spinner />}><AdminVariationForm /></Suspense>} />
         <Route path="product-variations" element={<Suspense fallback={<Spinner />}><AdminProductVariations /></Suspense>} />
         <Route path="categories" element={<Suspense fallback={<Spinner />}><AdminCategories /></Suspense>} />
         <Route path="categories/new" element={<Suspense fallback={<Spinner />}><AdminPlaceholder /></Suspense>} />

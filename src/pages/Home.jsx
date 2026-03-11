@@ -2,22 +2,65 @@
  * Home page - hero slider, category tabs, products, service section, blog, testimonial.
  */
 
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getFeaturedProducts } from '../api/productApi.js'
+import { listProductTypes } from '../api/productVaration.js'
 import { useAuthStore } from '../stores/authStore.js'
 
-const CATEGORIES = [
-  { id: 'new', label: 'NEW ARRIVALS' },
-  { id: 'bestsellers', label: 'BEST SELLERS' },
-  { id: 'sale', label: 'SALE ITEMS' },
-]
+const IMAGE_ROTATE_MS = 3000
+
+function ProductCard({ product }) {
+  const productTitle = product.title ?? product.name
+  const price = product.base_price ?? product.price ?? 0
+  const imageList = useMemo(() => {
+    const imgs = product.images ?? []
+    return imgs.map((img) => ({
+      url: typeof img === 'string' ? img : img?.img_url ?? img?.url ?? '',
+      alt: typeof img === 'string' ? productTitle : img?.alt_name ?? productTitle,
+    })).filter((i) => i.url)
+  }, [product.images, productTitle])
+  const [imageIndex, setImageIndex] = useState(0)
+  const currentImage = imageList[imageIndex] ?? imageList[0]
+
+  useEffect(() => {
+    if (imageList.length <= 1) return
+    const id = setInterval(() => {
+      setImageIndex((i) => (i + 1) % imageList.length)
+    }, IMAGE_ROTATE_MS)
+    return () => clearInterval(id)
+  }, [imageList.length])
+
+  return (
+    <Link
+      to={`/product/${product.slug || product.id}`}
+      className="group block bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-md transition-shadow"
+    >
+      <div className="aspect-square bg-neutral-100 overflow-hidden">
+        {currentImage ? (
+          <img
+            key={imageIndex}
+            src={currentImage.url}
+            alt={currentImage.alt}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-neutral-400">No image</div>
+        )}
+      </div>
+      <div className="p-4">
+        <h3 className="font-medium text-neutral-900 group-hover:text-store-accent">{productTitle}</h3>
+        <p className="text-neutral-600 font-semibold mt-1">${Number(price).toFixed(2)}</p>
+      </div>
+    </Link>
+  )
+}
 
 export function Home() {
   const user = useAuthStore((s) => s.user)
   const useDemoAdmin = useAuthStore((s) => s.useDemoAdmin)
-  const [activeCategory, setActiveCategory] = useState('new')
+  const [activeProductTypeId, setActiveProductTypeId] = useState(null) // null = All
   const [slideIndex, setSlideIndex] = useState(0)
 
   const { data: products = [], isLoading } = useQuery({
@@ -26,6 +69,23 @@ export function Home() {
     staleTime: 60 * 1000,
     retry: false,
   })
+
+  const { data: productTypesRaw } = useQuery({
+    queryKey: ['product-types'],
+    queryFn: listProductTypes,
+    staleTime: 60 * 1000,
+    retry: false,
+  })
+
+  const productTypes = useMemo(() => {
+    const list = Array.isArray(productTypesRaw) ? productTypesRaw : (productTypesRaw?.data ?? productTypesRaw?.items ?? [])
+    return (list || []).map((row) => ({ id: row.id, name: row.name ?? '' })).filter((t) => t.id != null && t.name)
+  }, [productTypesRaw])
+
+  const filteredProducts = useMemo(() => {
+    if (!activeProductTypeId) return products
+    return products.filter((p) => String(p.product_type_id ?? p.productTypeId ?? '') === String(activeProductTypeId))
+  }, [products, activeProductTypeId])
 
   return (
     <div>
@@ -76,21 +136,32 @@ export function Home() {
         </div>
       </section>
 
-      {/* Category tabs + product grid */}
+      {/* Product type tabs (as category) + product grid */}
       <section className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex gap-8 border-b border-neutral-200 mb-8">
-          {CATEGORIES.map((cat) => (
+        <div className="flex flex-wrap gap-6 border-b border-neutral-200 mb-8">
+          <button
+            type="button"
+            onClick={() => setActiveProductTypeId(null)}
+            className={`pb-3 text-[0.8rem] font-medium uppercase tracking-wider transition-colors border-b-2 -mb-px ${
+              activeProductTypeId == null
+                ? 'text-neutral-800 border-store-accent'
+                : 'text-neutral-400 border-transparent hover:text-neutral-600'
+            }`}
+          >
+            All
+          </button>
+          {productTypes.map((type) => (
             <button
-              key={cat.id}
+              key={type.id}
               type="button"
-              onClick={() => setActiveCategory(cat.id)}
+              onClick={() => setActiveProductTypeId(type.id)}
               className={`pb-3 text-[0.8rem] font-medium uppercase tracking-wider transition-colors border-b-2 -mb-px ${
-                activeCategory === cat.id
+                activeProductTypeId === type.id || String(activeProductTypeId) === String(type.id)
                   ? 'text-neutral-800 border-store-accent'
                   : 'text-neutral-400 border-transparent hover:text-neutral-600'
               }`}
             >
-              {cat.label}
+              {type.name}
             </button>
           ))}
         </div>
@@ -116,9 +187,11 @@ export function Home() {
               </div>
             ))}
           </div>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-xl border border-neutral-200">
-            <p className="text-neutral-500">No products in this category. View catalog</p>
+            <p className="text-neutral-500">
+              {products.length === 0 ? 'No products yet.' : 'No products in this type.'} View catalog
+            </p>
             <Link
               to="/catalog"
               className="mt-6 inline-block px-8 py-3 bg-store-accent hover:bg-[var(--store-accent-hover)] text-white font-semibold uppercase text-sm tracking-wider rounded-md transition-colors"
@@ -128,28 +201,8 @@ export function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.slice(0, 8).map((product) => (
-              <Link
-                key={product.id}
-                to={`/product/${product.slug || product.id}`}
-                className="group block bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-md transition-shadow"
-              >
-                <div className="aspect-square bg-neutral-100">
-                  {product.images?.[0] ? (
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-neutral-400">No image</div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="font-medium text-neutral-900 group-hover:text-store-accent">{product.name}</h3>
-                  <p className="text-neutral-600 font-semibold mt-1">${(product.price ?? 0).toFixed(2)}</p>
-                </div>
-              </Link>
+            {filteredProducts.slice(0, 8).map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}

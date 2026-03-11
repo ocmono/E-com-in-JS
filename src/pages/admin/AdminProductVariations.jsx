@@ -2,26 +2,48 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { AdminPageHeader } from "../../components/admin/AdminPageHeader.jsx"
 import { Table, TableFilterBarWithSearch, TableSearchInput } from "../../components/table"
-import { useAdminProductStore } from "../../stores/adminProductStore.js"
+import { listProducts } from "../../api/productVaration.js"
+import { listVariations } from "../../api/productVaration.js"
 import { PER_PAGE_OPTIONS } from "../../config.js"
 
 const columns = [
-  { key: "name", label: "Product" },
+  { key: "productName", label: "Product" },
+  { key: "title", label: "Title" },
+  { key: "sku", label: "SKU" },
   {
-    key: "variants",
-    label: "Variants",
-    render: (val) => val?.length ?? 0,
+    key: "price",
+    label: "Price",
+    render: (val) => (val != null ? `$${Number(val).toFixed(2)}` : "—"),
   },
+  {
+    key: "status",
+    label: "Status",
+    render: (val) => (
+      <span
+        className={`text-xs px-2 py-0.5 rounded ${
+          val ? "bg-green-100 text-green-700" : "bg-neutral-100 text-neutral-600"
+        }`}
+      >
+        {val ? "Active" : "Inactive"}
+      </span>
+    ),
+  },
+  {
+    key: "weight",
+    label: "Weight",
+    render: (val) => (val != null ? String(val) : "—"),
+  },
+  { key: "stock", label: "Stock", render: (val) => (val != null ? String(val) : "—") },
   {
     key: "id",
     label: "Action",
     align: "right",
     render: (id, row) => (
       <Link
-        to={`/admin/products/${row.id}`}
+        to={`/admin/products/${row.product_id}/variations/${id}`}
         className="text-blue-600 font-medium hover:underline"
       >
-        Manage →
+        Edit →
       </Link>
     ),
   },
@@ -48,14 +70,75 @@ export function AdminProductVariations() {
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(10)
-  const products = useAdminProductStore((s) => s.products)
+  const [loading, setLoading] = useState(true)
+  const [allVariations, setAllVariations] = useState([])
+  const [productCount, setProductCount] = useState(0)
 
-  const filtered = products.filter((p) =>
-    p.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.slug?.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    let cancelled = false
+    async function fetchAll() {
+      setLoading(true)
+      try {
+        const [productsRes, variationsRes] = await Promise.all([
+          listProducts(),
+          listVariations(),
+        ])
+        const products = Array.isArray(productsRes) ? productsRes : productsRes?.data ?? productsRes?.products ?? []
+        const productList = Array.isArray(products) ? products : []
+        const variationsRaw = Array.isArray(variationsRes) ? variationsRes : variationsRes?.data ?? variationsRes?.variations ?? []
+        const variationsList = Array.isArray(variationsRaw) ? variationsRaw : []
+
+        const productMap = new Map(
+          productList.map((p) => [String(p.id), p.title || p.name || `Product ${p.id}`])
+        )
+
+        let flattened = variationsList.map((v) => ({
+          ...v,
+          product_id: v.product_id ?? v.productId,
+          productName: productMap.get(String(v.product_id ?? v.productId)) ?? `Product ${v.product_id ?? v.productId}`,
+        }))
+
+        if (flattened.length === 0 && productList.length > 0) {
+          const byProduct = await Promise.all(
+            productList.map(async (p) => {
+              try {
+                const res = await listVariations({ product_id: p.id })
+                const list = Array.isArray(res) ? res : res?.data ?? res?.variations ?? []
+                return (Array.isArray(list) ? list : []).map((v) => ({
+                  ...v,
+                  product_id: p.id,
+                  productName: p.title || p.name || `Product ${p.id}`,
+                }))
+              } catch {
+                return []
+              }
+            })
+          )
+          flattened = byProduct.flat()
+        }
+
+        if (!cancelled) {
+          setAllVariations(flattened)
+          setProductCount(productList.length)
+        }
+      } catch (err) {
+        console.error("Failed to fetch variations:", err)
+        if (!cancelled) setAllVariations([])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    fetchAll()
+    return () => { cancelled = true }
+  }, [])
+
+  const filtered = allVariations.filter(
+    (v) =>
+      (v.productName && v.productName.toString().toLowerCase().includes(search.toLowerCase())) ||
+      (v.title && v.title.toString().toLowerCase().includes(search.toLowerCase())) ||
+      (v.sku && v.sku.toString().toLowerCase().includes(search.toLowerCase()))
   )
 
-  const productCount = products.length
   const total = filtered.length
   const totalPages = Math.max(1, Math.ceil(total / perPage))
   const start = (page - 1) * perPage
@@ -74,7 +157,7 @@ export function AdminProductVariations() {
 
       <AdminPageHeader
         title="Product variations"
-        description="Manage SKU, price, and stock per variation for each product. Click Manage to open a product's variations."
+        description="All SKU, price, and stock per variation. Edit a variation or go to a product to add new ones."
       />
 
       {/* TOP CARDS */}
@@ -96,7 +179,6 @@ export function AdminProductVariations() {
           </div>
         </div>
 
-
         <div className="bg-white border rounded-lg shadow-sm p-6 flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
             <WrenchIcon />
@@ -104,49 +186,51 @@ export function AdminProductVariations() {
 
           <div>
             <p className="text-xs uppercase tracking-wider text-neutral-500 font-semibold">
-              Manage Variations
+              Total variations
             </p>
-
-            <p className="text-sm text-neutral-600">
-              Open a product to add or edit SKU, price, and stock per variation.
+            <p className="text-2xl font-bold text-neutral-900">
+              {loading ? "…" : total}
             </p>
           </div>
         </div>
 
       </div>
 
-
-      <Table
-        columns={columns}
-        data={paginated}
-        rowKey="id"
-        filterBar={
-          <TableFilterBarWithSearch
-            search={
-              <TableSearchInput
-                label="Search products"
-                placeholder="Search by name or slug..."
-                value={search}
-                onChange={setSearch}
-              />
-            }
-          />
-        }
-        emptyState={{
-          message: "No products found",
-          subMessage: "Add products first, then manage their variations here.",
-          actionLabel: "Go to Products",
-          onAction: () => navigate("/admin/products"),
-        }}
-        pagination={{
-          page,
-          perPage,
-          total,
-          onPageChange: handlePageChange,
-          onPerPageChange: handlePerPageChange,
-        }}
-        perPageOptions={PER_PAGE_OPTIONS}
-      />
+      {loading ? (
+        <p className="text-neutral-500 py-4">Loading variations…</p>
+      ) : (
+        <Table
+          columns={columns}
+          data={paginated}
+          rowKey="id"
+          filterBar={
+            <TableFilterBarWithSearch
+              search={
+                <TableSearchInput
+                  label="Search variations"
+                  placeholder="Search by product, title or SKU…"
+                  value={search}
+                  onChange={setSearch}
+                />
+              }
+            />
+          }
+          emptyState={{
+            message: "No variations found",
+            subMessage: "Add products and create variations from the product page.",
+            actionLabel: "Go to Products",
+            onAction: () => navigate("/admin/products"),
+          }}
+          pagination={{
+            page,
+            perPage,
+            total,
+            onPageChange: handlePageChange,
+            onPerPageChange: handlePerPageChange,
+          }}
+          perPageOptions={PER_PAGE_OPTIONS}
+        />
+      )}
 
     </div>
   )

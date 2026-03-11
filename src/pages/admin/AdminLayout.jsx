@@ -24,6 +24,18 @@ function getBreadcrumbs(pathname) {
     if (rest === 'products') return [catalogParent, { label: 'Products' }]
     if (rest === 'products/new') return [catalogParent, { label: 'Products', to: '/admin/products' }, { label: 'Add product' }]
     if (rest === 'products/batch') return [catalogParent, { label: 'Products', to: '/admin/products' }, { label: 'Batch create' }]
+    if (/^products\/[^/]+\/variations\/new$/.test(rest)) {
+      const id = segments[1]
+      return [catalogParent, { label: 'Products', to: '/admin/products' }, { label: 'Product', to: `/admin/products/${id}` }, { label: 'Variations', to: `/admin/products/${id}/variations` }, { label: 'Add variation' }]
+    }
+    if (/^products\/[^/]+\/variations\/[^/]+$/.test(rest) && segments.length === 4) {
+      const id = segments[1]
+      return [catalogParent, { label: 'Products', to: '/admin/products' }, { label: 'Product', to: `/admin/products/${id}` }, { label: 'Variations', to: `/admin/products/${id}/variations` }, { label: 'Edit variation' }]
+    }
+    if (/^products\/[^/]+\/variations$/.test(rest)) {
+      const id = segments[1]
+      return [catalogParent, { label: 'Products', to: '/admin/products' }, { label: 'Product', to: `/admin/products/${id}` }, { label: 'Variations' }]
+    }
     if (/^products\/[^/]+$/.test(rest)) return [catalogParent, { label: 'Products', to: '/admin/products' }, { label: 'Edit' }]
     if (rest === 'product-variations') return [catalogParent, { label: 'Product variations' }]
     if (rest === 'categories') return [catalogParent, { label: 'Categories' }]
