@@ -88,7 +88,7 @@ export function AdminProductForm() {
   const [newVarStock, setNewVarStock] = useState('0')
   const [newVarStatus, setNewVarStatus] = useState(true)
   const [newVarImages, setNewVarImages] = useState([])
-  const [newVarAttributes, setNewVarAttributes] = useState([{ name: '', variation: '' }])
+  const [newVarAttributeSelections, setNewVarAttributeSelections] = useState({})
   const [addingVariation, setAddingVariation] = useState(false)
 
   const toggleSection = (sectionId) => {
@@ -167,10 +167,12 @@ export function AdminProductForm() {
   useEffect(() => {
     if (isEdit && id) {
       setLoadingVariations(true)
+      const productIdNum = parseInt(id, 10)
       listVariations({ product_id: id })
         .then((res) => {
           const list = Array.isArray(res) ? res : res?.data ?? res?.variations ?? []
-          setProductVariations(list)
+          const forThisProduct = list.filter((v) => v.product_id == productIdNum)
+          setProductVariations(forThisProduct)
         })
         .catch(() => setProductVariations([]))
         .finally(() => setLoadingVariations(false))
@@ -223,32 +225,33 @@ export function AdminProductForm() {
   const handleNewVarAddImage = () => setNewVarImages((prev) => [...prev, { alt_name: '', img_url: '' }])
   const handleNewVarRemoveImage = (idx) => setNewVarImages((prev) => prev.filter((_, i) => i !== idx))
 
-  const handleNewVarAttributeChange = (idx, field, value) =>
-    setNewVarAttributes((prev) => prev.map((a, i) => (i === idx ? { ...a, [field]: value } : a)))
-  const handleNewVarAddAttribute = () => setNewVarAttributes((prev) => [...prev, { name: '', variation: '' }])
-  const handleNewVarRemoveAttribute = (idx) =>
-    setNewVarAttributes((prev) => prev.filter((_, i) => i !== idx))
+  const handleNewVarAttributeSelect = (attrName, value) =>
+    setNewVarAttributeSelections((prev) => ({ ...prev, [attrName]: value }))
 
   const handleAddVariation = async (e) => {
     e.preventDefault()
     if (!id) return
     setAddingVariation(true)
+    const productId = parseInt(id, 10)
+    const varAttributes = productAttributes
+      .filter((a) => a.name && (a.variations || []).length > 0)
+      .map((a) => ({ name: a.name || '', variation: newVarAttributeSelections[a.name] || '' }))
+      .filter((a) => a.variation)
     const payload = {
-      product_id: parseInt(id, 10),
-      title: newVarTitle.trim() || undefined,
-      sku: newVarSku.trim() || undefined,
-      images: newVarImages
-        .filter((img) => img?.img_url)
-        .map((img) => ({ alt_name: img.alt_name || '', img_url: img.img_url })),
-      price: parseFloat(newVarPrice) || 0,
-      compare_price: newVarComparePrice ? parseFloat(newVarComparePrice) : 0,
-      attributes: newVarAttributes
-        .filter((a) => a.name && a.variation)
-        .map((a) => ({ name: a.name, variation: a.variation })),
-      attributes_id: newVarAttributesId ? parseInt(newVarAttributesId, 10) : undefined,
+      title: newVarTitle.trim() || '',
+      sku: newVarSku.trim() || '',
+      images: newVarImages.map((img) => ({
+        alt_name: img?.alt_name ?? '',
+        img_url: img?.img_url ?? '',
+      })),
+      price: newVarPrice !== '' ? parseFloat(newVarPrice) : 0,
+      compare_price: newVarComparePrice !== '' ? parseFloat(newVarComparePrice) : 0,
+      attributes: varAttributes,
+      attributes_id: newVarAttributesId !== '' ? parseInt(newVarAttributesId, 10) : 0,
       status: newVarStatus,
-      weight: newVarWeight ? parseFloat(newVarWeight) : 0,
-      stock: parseInt(newVarStock, 10) || 0,
+      weight: newVarWeight !== '' ? parseFloat(newVarWeight) : 0,
+      stock: newVarStock !== '' ? parseInt(newVarStock, 10) : 0,
+      product_id: productId,
     }
     try {
       const res = await createVariation(payload)
@@ -263,7 +266,7 @@ export function AdminProductForm() {
       setNewVarStock('0')
       setNewVarStatus(true)
       setNewVarImages([])
-      setNewVarAttributes([{ name: '', variation: '' }])
+      setNewVarAttributeSelections({})
     } catch (err) {
       console.error(err)
     } finally {
@@ -294,6 +297,7 @@ export function AdminProductForm() {
       base_stock: baseStock !== '' ? parseInt(baseStock, 10) : null,
       status,
     }
+    
     try {
       if (isEdit) {
         await updateProductApi(id, productPayload)
@@ -621,6 +625,9 @@ export function AdminProductForm() {
 
                 <div className="border border-neutral-200 rounded-lg p-4 bg-neutral-50/50">
                   <h3 className="text-sm font-semibold text-neutral-800 mb-3">Add variation</h3>
+                  <p className="text-xs text-neutral-500 mb-3">
+                    Submits to POST /products/variations/create: title, sku, images, price, compare_price, attributes, attributes_id, status, weight, stock, product_id.
+                  </p>
                   <form onSubmit={handleAddVariation} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -643,89 +650,6 @@ export function AdminProductForm() {
                           placeholder="e.g. TSHIRT-BLU-M"
                         />
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
-                        <label className={labelClass}>Price *</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={newVarPrice}
-                          onChange={(e) => setNewVarPrice(e.target.value)}
-                          className={inputClass}
-                          placeholder="32.99"
-                        />
-                      </div>
-                      <div>
-                        <label className={labelClass}>Compare price</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={newVarComparePrice}
-                          onChange={(e) => setNewVarComparePrice(e.target.value)}
-                          className={inputClass}
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <label className={labelClass}>Attributes ID</label>
-                        <input
-                          type="number"
-                          value={newVarAttributesId}
-                          onChange={(e) => setNewVarAttributesId(e.target.value)}
-                          className={inputClass}
-                          placeholder="1"
-                        />
-                      </div>
-                      <div>
-                        <label className={labelClass}>Weight</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={newVarWeight}
-                          onChange={(e) => setNewVarWeight(e.target.value)}
-                          className={inputClass}
-                          placeholder="0.26"
-                        />
-                      </div>
-                      <div>
-                        <label className={labelClass}>Stock</label>
-                        <input
-                          type="number"
-                          value={newVarStock}
-                          onChange={(e) => setNewVarStock(e.target.value)}
-                          className={inputClass}
-                          placeholder="50"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-medium text-neutral-700 mb-2">Attributes (name / value)</h4>
-                      {newVarAttributes.map((attr, idx) => (
-                        <div key={idx} className="flex gap-2 items-center mb-2">
-                          <input
-                            type="text"
-                            value={attr.name}
-                            onChange={(e) => handleNewVarAttributeChange(idx, 'name', e.target.value)}
-                            className="flex-1 max-w-[140px] px-3 py-2 border border-neutral-300 rounded-md text-sm"
-                            placeholder="name"
-                          />
-                          <input
-                            type="text"
-                            value={attr.variation}
-                            onChange={(e) => handleNewVarAttributeChange(idx, 'variation', e.target.value)}
-                            className="flex-1 max-w-[140px] px-3 py-2 border border-neutral-300 rounded-md text-sm"
-                            placeholder="variation"
-                          />
-                          <button type="button" onClick={() => handleNewVarRemoveAttribute(idx)} className="text-red-600 hover:text-red-700 text-sm">
-                            Remove
-                          </button>
-                        </div>
-                      ))}
-                      <button type="button" onClick={handleNewVarAddAttribute} className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                        + Add attribute
-                      </button>
                     </div>
 
                     <div>
@@ -762,6 +686,82 @@ export function AdminProductForm() {
                       </button>
                     </div>
 
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <label className={labelClass}>Price *</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={newVarPrice}
+                          onChange={(e) => setNewVarPrice(e.target.value)}
+                          className={inputClass}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Compare price</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={newVarComparePrice}
+                          onChange={(e) => setNewVarComparePrice(e.target.value)}
+                          className={inputClass}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Weight</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={newVarWeight}
+                          onChange={(e) => setNewVarWeight(e.target.value)}
+                          className={inputClass}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Stock</label>
+                        <input
+                          type="number"
+                          value={newVarStock}
+                          onChange={(e) => setNewVarStock(e.target.value)}
+                          className={inputClass}
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-medium text-neutral-700 mb-2">Attributes (name, variation)</h4>
+                      <div className="flex flex-wrap gap-x-5 gap-y-2 items-center">
+                        {productAttributes
+                          .filter((a) => a.name && (a.variations || []).length > 0)
+                          .map((attr) => (
+                            <div key={attr.name} className="flex gap-2 items-center">
+                              <label className="text-sm font-medium text-neutral-700 shrink-0">
+                                {attr.name}:
+                              </label>
+                              <select
+                                value={newVarAttributeSelections[attr.name] ?? ''}
+                                onChange={(e) => handleNewVarAttributeSelect(attr.name, e.target.value)}
+                                className="flex-1 max-w-[200px] px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              >
+                                <option value="">Select {attr.name}</option>
+                                {(attr.variations || []).map((opt) => (
+                                  <option key={opt} value={opt}>
+                                    {opt}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          ))}
+                      </div>
+                      {productAttributes.filter((a) => a.name && (a.variations || []).length > 0).length === 0 && (
+                        <p className="text-sm text-neutral-500">Define attributes in the Attributes section above, then pick a value per attribute here.</p>
+                      )}
+                    </div>
+
                     <div className="flex items-center gap-4">
                       <label className="flex items-center gap-2">
                         <input
@@ -769,7 +769,7 @@ export function AdminProductForm() {
                           checked={newVarStatus}
                           onChange={(e) => setNewVarStatus(e.target.checked)}
                         />
-                        <span className="text-sm">Active</span>
+                        <span className="text-sm">Status (active)</span>
                       </label>
                       <button
                         type="submit"
@@ -792,7 +792,7 @@ export function AdminProductForm() {
                           <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600 uppercase">Title</th>
                           <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600 uppercase">SKU</th>
                           <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600 uppercase">Price</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600 uppercase">Attributes ID</th>
+                          {/* <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600 uppercase">Attributes ID</th> */}
                           <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600 uppercase">Stock</th>
                           <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600 uppercase">Weight</th>
                           <th className="px-4 py-2 text-left text-xs font-medium text-neutral-600 uppercase">Status</th>
@@ -800,14 +800,18 @@ export function AdminProductForm() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-neutral-200 bg-white">
-                        {productVariations.length === 0 ? (
+                        {(() => {
+                          const forThisProduct = productVariations.filter(
+                            (v) => v.product_id == id || v.product_id === parseInt(id, 10)
+                          )
+                          return forThisProduct.length === 0 ? (
                           <tr>
                             <td colSpan={8} className="px-4 py-4 text-center text-neutral-500 text-sm">
                               No variations yet. Add one below.
                             </td>
                           </tr>
                         ) : (
-                          productVariations.map((v) => (
+                          forThisProduct.map((v) => (
                             <tr key={v.id} className="hover:bg-neutral-50">
                               <td className="px-4 py-2 text-sm text-neutral-900">{v.title || '—'}</td>
                               <td className="px-4 py-2 text-sm text-neutral-600">{v.sku || '—'}</td>
@@ -830,7 +834,8 @@ export function AdminProductForm() {
                               </td>
                             </tr>
                           ))
-                        )}
+                        );
+                        })()}
                       </tbody>
                     </table>
                   </div>

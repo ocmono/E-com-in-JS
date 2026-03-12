@@ -166,7 +166,7 @@ export function Home() {
           ))}
         </div>
 
-        {!user && (
+        {/* {!user && (
           <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm">
             <p className="text-amber-800">
               No backend connected. Use demo admin:{' '}
@@ -175,7 +175,7 @@ export function Home() {
               </button>
             </p>
           </div>
-        )}
+        )} */}
 
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
