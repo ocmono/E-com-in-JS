@@ -3,6 +3,7 @@
  * Schema: id, title, slug, description, product_type_id, brand, attributes [{ name, variations[] }], images, tags, status.
  */
 import { useState, useEffect } from 'react'
+import { Editor, BtnBold, BtnItalic, BtnUnderline, BtnBulletList, BtnNumberedList, Toolbar, EditorProvider } from 'react-simple-wysiwyg'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAdminProductStore } from '../../stores/adminProductStore.js'
 import {
@@ -69,8 +70,8 @@ export function AdminProductForm() {
   const [baseWeight, setBaseWeight] = useState('')
   const [baseStock, setBaseStock] = useState('')
   const [productAttributes, setProductAttributes] = useState([
-    { name: 'color', variations: ['white', 'black', 'red'] },
-    { name: 'size', variations: ['S', 'M', 'L', 'XL'] },
+    // { name: 'color', variations: ['white', 'black', 'red'] },
+    // { name: 'size', variations: ['S', 'M', 'L', 'XL'] },
   ])
   const [showNewAttributeInput, setShowNewAttributeInput] = useState(false)
   const [newAttributeNameDraft, setNewAttributeNameDraft] = useState('')
@@ -187,9 +188,6 @@ export function AdminProductForm() {
     if (!slug || slug === slug.replace(/-\d+$/, '')) setSlug(s)
   }, [title])
 
-  const handleProductAttributeChange = (idx, field, value) => {
-    setProductAttributes((prev) => prev.map((a, i) => (i === idx ? { ...a, [field]: value } : a)))
-  }
 
   const handleProductAttributeVariations = (idx, valuesStr) => {
     const variations = valuesStr
@@ -229,7 +227,7 @@ export function AdminProductForm() {
     setNewVarAttributeSelections((prev) => ({ ...prev, [attrName]: value }))
 
   const handleAddVariation = async (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     if (!id) return
     setAddingVariation(true)
     const productId = parseInt(id, 10)
@@ -434,13 +432,22 @@ export function AdminProductForm() {
               </div>
               <div>
                 <label className={labelClass}>Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={4}
-                  className={inputClass}
-                  placeholder="Full description"
-                />
+                <div className="border border-neutral-300 rounded-md overflow-hidden">
+                  <EditorProvider>
+                    <Editor
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    >
+                      <Toolbar>
+                        <BtnBold />
+                        <BtnItalic />
+                        <BtnUnderline />
+                        <BtnBulletList />
+                        <BtnNumberedList />
+                      </Toolbar>
+                    </Editor>
+                  </EditorProvider>
+                </div>
               </div>
               <div>
                 <label className={labelClass}>Tags (comma-separated)</label>
@@ -628,7 +635,7 @@ export function AdminProductForm() {
                   <p className="text-xs text-neutral-500 mb-3">
                     Submits to POST /products/variations/create: title, sku, images, price, compare_price, attributes, attributes_id, status, weight, stock, product_id.
                   </p>
-                  <form onSubmit={handleAddVariation} className="space-y-4">
+                  <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className={labelClass}>Title *</label>
@@ -772,14 +779,15 @@ export function AdminProductForm() {
                         <span className="text-sm">Status (active)</span>
                       </label>
                       <button
-                        type="submit"
+                        type="button"
+                        onClick={handleAddVariation}
                         disabled={addingVariation}
                         className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 disabled:opacity-50"
                       >
                         {addingVariation ? 'Adding…' : 'Add variation'}
                       </button>
                     </div>
-                  </form>
+                  </div>
                 </div>
 
                 {loadingVariations ? (

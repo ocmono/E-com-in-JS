@@ -11,6 +11,8 @@ import {
 } from '../../components/table'
 import { listProducts, deleteProduct as deleteProductApi, listVariations } from '../../api/productVaration.js'
 import { PER_PAGE_OPTIONS } from '../../config.js'
+import { BiPencil, BiTrash } from 'react-icons/bi'
+import { FiEye } from 'react-icons/fi'
 
 const HelpIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,19 +109,31 @@ const getColumns = (onDelete, loading, variationMap = {}) => [
     align: 'right',
     render: (id, row) => (
       <div className="flex gap-2 justify-end">
-        <Link to={`/admin/products/${id}`} className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-          Edit
+        <Link
+          to={`/admin/products/${id}`}
+          className=" text-blue-600 hover:text-blue-700 rounded-full hover:bg-neutral-100"
+          aria-label="Edit product"
+          title="Edit"
+        >
+          <BiPencil className="w-5 h-5" />
         </Link>
-        <Link to={`/product/${id}`} className="text-neutral-500 hover:text-neutral-700 text-sm">
-          View
+        <Link
+          to={`/product/${id}`}
+          className=" text-neutral-500 hover:text-neutral-700 rounded-full hover:bg-neutral-100"
+          aria-label="View product"
+          title="View"
+        >
+          <FiEye className="w-5 h-5" />
         </Link>
         <button
           type="button"
           onClick={() => onDelete(id)}
           disabled={loading}
-          className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
+          className=" text-red-600 hover:text-red-700 rounded-full hover:bg-neutral-100 disabled:opacity-50"
+          aria-label="Delete product"
+          title="Delete"
         >
-          Delete
+          <BiTrash className="w-5 h-5" />
         </button>
       </div>
     ),
@@ -131,6 +145,7 @@ export function AdminProducts() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
+  const [deleteTargetId, setDeleteTargetId] = useState(null)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
   const [priceMin, setPriceMin] = useState('')
@@ -181,17 +196,18 @@ export function AdminProducts() {
     fetchProducts()
   }, [])
 
-  const handleDelete = async (productId) => {
-    if (!confirm('Delete this product?')) return
+  const handleDelete = async () => {
+    if (!deleteTargetId) return
     setDeleting(true)
     try {
-      await deleteProductApi(productId)
+      await deleteProductApi(deleteTargetId)
       await fetchProducts()
     } catch (err) {
       console.error('Failed to delete product:', err)
       alert('Failed to delete product.')
     } finally {
       setDeleting(false)
+      setDeleteTargetId(null)
     }
   }
 
@@ -285,7 +301,7 @@ export function AdminProducts() {
       </AdminPageHeader>
 
       <Table
-        columns={getColumns(handleDelete, deleting, variationTitlesByProduct)}
+        columns={getColumns((id) => setDeleteTargetId(id), deleting, variationTitlesByProduct)}
         data={loading ? [] : paginated}
         rowKey="id"
         filterBar={
@@ -398,6 +414,34 @@ export function AdminProducts() {
         }}
         perPageOptions={PER_PAGE_OPTIONS}
       />
+      {deleteTargetId != null && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-2">Delete product?</h2>
+            <p className="text-sm text-neutral-600 mb-4">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => !deleting && setDeleteTargetId(null)}
+                className="px-3 py-1.5 text-sm rounded-md border border-neutral-300 text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                disabled={deleting}
+              >
+                {deleting ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

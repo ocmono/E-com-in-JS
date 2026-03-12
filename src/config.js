@@ -25,3 +25,5 @@ export const ROLE_OPTIONS = [
 ]
 
 export const PER_PAGE_OPTIONS = [10, 25, 50, 100]
+
+export const IMAGE_ROTATE_MS = 3500

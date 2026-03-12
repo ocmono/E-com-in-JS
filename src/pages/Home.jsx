@@ -8,54 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getFeaturedProducts } from '../api/productApi.js'
 import { listProductTypes } from '../api/productVaration.js'
 import { useAuthStore } from '../stores/authStore.js'
-
-const IMAGE_ROTATE_MS = 3000
-
-function ProductCard({ product }) {
-  const productTitle = product.title ?? product.name
-  const price = product.base_price ?? product.price ?? 0
-  const imageList = useMemo(() => {
-    const imgs = product.images ?? []
-    return imgs.map((img) => ({
-      url: typeof img === 'string' ? img : img?.img_url ?? img?.url ?? '',
-      alt: typeof img === 'string' ? productTitle : img?.alt_name ?? productTitle,
-    })).filter((i) => i.url)
-  }, [product.images, productTitle])
-  const [imageIndex, setImageIndex] = useState(0)
-  const currentImage = imageList[imageIndex] ?? imageList[0]
-
-  useEffect(() => {
-    if (imageList.length <= 1) return
-    const id = setInterval(() => {
-      setImageIndex((i) => (i + 1) % imageList.length)
-    }, IMAGE_ROTATE_MS)
-    return () => clearInterval(id)
-  }, [imageList.length])
-
-  return (
-    <Link
-      to={`/product/${product.slug || product.id}`}
-      className="group block bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-md transition-shadow"
-    >
-      <div className="aspect-square bg-neutral-100 overflow-hidden">
-        {currentImage ? (
-          <img
-            key={imageIndex}
-            src={currentImage.url}
-            alt={currentImage.alt}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-neutral-400">No image</div>
-        )}
-      </div>
-      <div className="p-4">
-        <h3 className="font-medium text-neutral-900 group-hover:text-store-accent">{productTitle}</h3>
-        <p className="text-neutral-600 font-semibold mt-1">${Number(price).toFixed(2)}</p>
-      </div>
-    </Link>
-  )
-}
+import { ProductCard } from '../components/ProductCard.jsx'
 
 export function Home() {
   const user = useAuthStore((s) => s.user)

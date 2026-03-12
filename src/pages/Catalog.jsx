@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getProducts } from '../api/productApi.js'
 import { useCartStore } from '../stores/cartStore.js'
+import { ProductCard } from '../components/ProductCard.jsx'
 
 const CATEGORIES = [
   { id: 'all', label: 'ALL PRODUCTS' },
@@ -14,49 +15,6 @@ const CATEGORIES = [
   { id: 'bestsellers', label: 'BEST SELLERS' },
   { id: 'sale', label: 'SALE ITEMS' },
 ]
-
-function ProductCard({ product, onAddToCart }) {
-  const title = product.title ?? product.name
-  const price = product.base_price ?? product.price ?? 0
-  const imageUrl = product.images?.[0]
-  const imageSrc = typeof imageUrl === 'string' ? imageUrl : imageUrl?.url ?? imageUrl?.img_url ?? ''
-
-  const handleAdd = (e) => {
-    e.preventDefault()
-    onAddToCart?.(e, product)
-  }
-
-  return (
-    <div className="group bg-white border border-neutral-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
-      <Link to={`/product/${product.slug || product.id}`} className="block">
-        <div className="aspect-square bg-neutral-100">
-          {imageSrc ? (
-            <img
-              src={imageSrc}
-              alt={title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-neutral-400">No image</div>
-          )}
-        </div>
-        <div className="p-4">
-          <h3 className="font-medium text-neutral-900 group-hover:text-store-accent">{title}</h3>
-          <p className="text-neutral-600 font-semibold mt-1">${Number(price).toFixed(2)}</p>
-        </div>
-      </Link>
-      <div className="px-4 pb-4">
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="w-full py-2 bg-store-accent hover:bg-[var(--store-accent-hover)] text-white rounded-md text-sm font-medium transition-colors"
-        >
-          Add to cart
-        </button>
-      </div>
-    </div>
-  )
-}
 
 export function Catalog() {
   const [page, setPage] = useState(1)
@@ -133,7 +91,7 @@ export function Catalog() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredProducts.slice(0, 8).map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}
